@@ -30,3 +30,5 @@ experiments/cache/
 experiments/results/*.jsonl
 # paper build output
 paper/main.pdf
+paper/figs/*.aux
+paper/figs/*.log
