@@ -1,0 +1,16 @@
+[profile.default]
+src = "src"
+test = "test"
+out = "out"
+libs = ["lib"]
+solc_version = "0.8.30"
+# Lowest common EVM target: runs on Besu QBFT and on PoA EVM chains whose fork level is unknown.
+evm_version = "paris"
+optimizer = true
+optimizer_runs = 10000
+remappings = ["forge-std/=lib/forge-std/src/", "@openzeppelin/contracts/=lib/openzeppelin-contracts/contracts/"]
+gas_reports = ["Registry", "FullLog", "HashLog", "MerkleLog", "SequencedLog"]
+
+[fuzz]
+runs = 2000
+seed = "0x1c8c2027"

@@ -1,0 +1,38 @@
+{
+  "PROVE-CPS Registry.anchor": {
+    "fn": "anchor",
+    "median": 47825,
+    "min": 47789,
+    "max": 47825,
+    "first": 47825
+  },
+  "B1 FullLog.logEvent": {
+    "fn": "logEvent",
+    "median": 95068,
+    "min": 94996,
+    "max": 139736,
+    "first": 95056
+  },
+  "B2 HashLog.anchorHash": {
+    "fn": "anchorHash",
+    "median": 46166,
+    "min": 46142,
+    "max": 46166,
+    "first": 46154
+  },
+  "B3/B5 MerkleLog.anchor": {
+    "fn": "anchor",
+    "median": 47762,
+    "min": 47726,
+    "max": 47762,
+    "first": 47762
+  },
+  "B4 SequencedLog.append": {
+    "fn": "append",
+    "median": 36629,
+    "min": 36605,
+    "max": 36629,
+    "first": 70829
+  },
+  "payload_bytes_mean": 21.605
+}

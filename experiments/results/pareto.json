@@ -1,0 +1,430 @@
+{
+ "delta": 3.0,
+ "tau_digest": 300,
+ "gas": {
+  "anchor": 47825,
+  "merkle": 47762,
+  "hash": 46166,
+  "full": 95068
+ },
+ "rows": [
+  {
+   "split": "test1",
+   "tau_full": 5,
+   "hours": 15.0,
+   "events": 785874,
+   "full_events": 2577,
+   "batches_per_h": {
+    "provecps": 89.0,
+    "one_class": 1200.0,
+    "fixed": 1800.0
+   },
+   "gas_per_h": {
+    "provecps": 4256425.0,
+    "one_class": 57390000.0,
+    "B3_fixed": 85971600.0,
+    "B2": 2418710605.6,
+    "B1": 4980764628.8
+   }
+  },
+  {
+   "split": "test1",
+   "tau_full": 10,
+   "hours": 15.0,
+   "events": 785874,
+   "full_events": 2577,
+   "batches_per_h": {
+    "provecps": 58.06666666666667,
+    "one_class": 450.0,
+    "fixed": 514.3333333333334
+   },
+   "gas_per_h": {
+    "provecps": 2777038.3333333335,
+    "one_class": 21521250.0,
+    "B3_fixed": 24565588.666666668,
+    "B2": 2418710605.6,
+    "B1": 4980764628.8
+   }
+  },
+  {
+   "split": "test1",
+   "tau_full": 15,
+   "hours": 15.0,
+   "events": 785874,
+   "full_events": 2577,
+   "batches_per_h": {
+    "provecps": 45.53333333333333,
+    "one_class": 276.93333333333334,
+    "fixed": 300.0
+   },
+   "gas_per_h": {
+    "provecps": 2177631.6666666665,
+    "one_class": 13244336.666666666,
+    "B3_fixed": 14328600.0,
+    "B2": 2418710605.6,
+    "B1": 4980764628.8
+   }
+  },
+  {
+   "split": "test1",
+   "tau_full": 20,
+   "hours": 15.0,
+   "events": 785874,
+   "full_events": 2577,
+   "batches_per_h": {
+    "provecps": 39.0,
+    "one_class": 200.0,
+    "fixed": 211.8
+   },
+   "gas_per_h": {
+    "provecps": 1865175.0,
+    "one_class": 9565000.0,
+    "B3_fixed": 10115991.6,
+    "B2": 2418710605.6,
+    "B1": 4980764628.8
+   }
+  },
+  {
+   "split": "test1",
+   "tau_full": 30,
+   "hours": 15.0,
+   "events": 785874,
+   "full_events": 2577,
+   "batches_per_h": {
+    "provecps": 31.533333333333335,
+    "one_class": 128.6,
+    "fixed": 133.33333333333334
+   },
+   "gas_per_h": {
+    "provecps": 1508081.6666666667,
+    "one_class": 6150295.0,
+    "B3_fixed": 6368266.666666667,
+    "B2": 2418710605.6,
+    "B1": 4980764628.8
+   }
+  },
+  {
+   "split": "test1",
+   "tau_full": 45,
+   "hours": 15.0,
+   "events": 785874,
+   "full_events": 2577,
+   "batches_per_h": {
+    "provecps": 26.0,
+    "one_class": 83.73333333333333,
+    "fixed": 85.73333333333333
+   },
+   "gas_per_h": {
+    "provecps": 1243450.0,
+    "one_class": 4004546.6666666665,
+    "B3_fixed": 4094795.466666667,
+    "B2": 2418710605.6,
+    "B1": 4980764628.8
+   }
+  },
+  {
+   "split": "test1",
+   "tau_full": 60,
+   "hours": 15.0,
+   "events": 785874,
+   "full_events": 2577,
+   "batches_per_h": {
+    "provecps": 22.666666666666668,
+    "one_class": 62.13333333333333,
+    "fixed": 63.2
+   },
+   "gas_per_h": {
+    "provecps": 1084033.3333333333,
+    "one_class": 2971526.6666666665,
+    "B3_fixed": 3018558.4,
+    "B2": 2418710605.6,
+    "B1": 4980764628.8
+   }
+  },
+  {
+   "split": "test1",
+   "tau_full": 90,
+   "hours": 15.0,
+   "events": 785874,
+   "full_events": 2577,
+   "batches_per_h": {
+    "provecps": 18.6,
+    "one_class": 40.93333333333333,
+    "fixed": 41.4
+   },
+   "gas_per_h": {
+    "provecps": 889545.0,
+    "one_class": 1957636.6666666667,
+    "B3_fixed": 1977346.8,
+    "B2": 2418710605.6,
+    "B1": 4980764628.8
+   }
+  },
+  {
+   "split": "test1",
+   "tau_full": 120,
+   "hours": 15.0,
+   "events": 785874,
+   "full_events": 2577,
+   "batches_per_h": {
+    "provecps": 16.666666666666668,
+    "one_class": 30.533333333333335,
+    "fixed": 30.8
+   },
+   "gas_per_h": {
+    "provecps": 797083.3333333334,
+    "one_class": 1460256.6666666667,
+    "B3_fixed": 1471069.6,
+    "B2": 2418710605.6,
+    "B1": 4980764628.8
+   }
+  },
+  {
+   "split": "test1",
+   "tau_full": 180,
+   "hours": 15.0,
+   "events": 785874,
+   "full_events": 2577,
+   "batches_per_h": {
+    "provecps": 14.066666666666666,
+    "one_class": 20.266666666666666,
+    "fixed": 20.4
+   },
+   "gas_per_h": {
+    "provecps": 672738.3333333334,
+    "one_class": 969253.3333333334,
+    "B3_fixed": 974344.8,
+    "B2": 2418710605.6,
+    "B1": 4980764628.8
+   }
+  },
+  {
+   "split": "test1",
+   "tau_full": 300,
+   "hours": 15.0,
+   "events": 785874,
+   "full_events": 2577,
+   "batches_per_h": {
+    "provecps": 12.133333333333333,
+    "one_class": 12.133333333333333,
+    "fixed": 12.133333333333333
+   },
+   "gas_per_h": {
+    "provecps": 580276.6666666666,
+    "one_class": 580276.6666666666,
+    "B3_fixed": 579512.2666666667,
+    "B2": 2418710605.6,
+    "B1": 4980764628.8
+   }
+  },
+  {
+   "split": "test2",
+   "tau_full": 5,
+   "hours": 64.0,
+   "events": 3362421,
+   "full_events": 19137,
+   "batches_per_h": {
+    "provecps": 116.59375,
+    "one_class": 1200.0,
+    "fixed": 1800.0
+   },
+   "gas_per_h": {
+    "provecps": 5576096.09375,
+    "one_class": 57390000.0,
+    "B3_fixed": 85971600.0,
+    "B2": 2425461373.21875,
+    "B1": 4994666244.1875
+   }
+  },
+  {
+   "split": "test2",
+   "tau_full": 10,
+   "hours": 64.0,
+   "events": 3362421,
+   "full_events": 19137,
+   "batches_per_h": {
+    "provecps": 75.859375,
+    "one_class": 450.0,
+    "fixed": 514.296875
+   },
+   "gas_per_h": {
+    "provecps": 3627974.609375,
+    "one_class": 21521250.0,
+    "B3_fixed": 24563847.34375,
+    "B2": 2425461373.21875,
+    "B1": 4994666244.1875
+   }
+  },
+  {
+   "split": "test2",
+   "tau_full": 15,
+   "hours": 64.0,
+   "events": 3362421,
+   "full_events": 19137,
+   "batches_per_h": {
+    "provecps": 58.234375,
+    "one_class": 276.921875,
+    "fixed": 300.0
+   },
+   "gas_per_h": {
+    "provecps": 2785058.984375,
+    "one_class": 13243788.671875,
+    "B3_fixed": 14328600.0,
+    "B2": 2425461373.21875,
+    "B1": 4994666244.1875
+   }
+  },
+  {
+   "split": "test2",
+   "tau_full": 20,
+   "hours": 64.0,
+   "events": 3362421,
+   "full_events": 19137,
+   "batches_per_h": {
+    "provecps": 49.234375,
+    "one_class": 200.0,
+    "fixed": 211.765625
+   },
+   "gas_per_h": {
+    "provecps": 2354633.984375,
+    "one_class": 9565000.0,
+    "B3_fixed": 10114349.78125,
+    "B2": 2425461373.21875,
+    "B1": 4994666244.1875
+   }
+  },
+  {
+   "split": "test2",
+   "tau_full": 30,
+   "hours": 64.0,
+   "events": 3362421,
+   "full_events": 19137,
+   "batches_per_h": {
+    "provecps": 38.578125,
+    "one_class": 128.578125,
+    "fixed": 133.34375
+   },
+   "gas_per_h": {
+    "provecps": 1844998.828125,
+    "one_class": 6149248.828125,
+    "B3_fixed": 6368764.1875,
+    "B2": 2425461373.21875,
+    "B1": 4994666244.1875
+   }
+  },
+  {
+   "split": "test2",
+   "tau_full": 45,
+   "hours": 64.0,
+   "events": 3362421,
+   "full_events": 19137,
+   "batches_per_h": {
+    "provecps": 30.515625,
+    "one_class": 83.734375,
+    "fixed": 85.71875
+   },
+   "gas_per_h": {
+    "provecps": 1459409.765625,
+    "one_class": 4004596.484375,
+    "B3_fixed": 4094098.9375,
+    "B2": 2425461373.21875,
+    "B1": 4994666244.1875
+   }
+  },
+  {
+   "split": "test2",
+   "tau_full": 60,
+   "hours": 64.0,
+   "events": 3362421,
+   "full_events": 19137,
+   "batches_per_h": {
+    "provecps": 25.765625,
+    "one_class": 62.078125,
+    "fixed": 63.171875
+   },
+   "gas_per_h": {
+    "provecps": 1232241.015625,
+    "one_class": 2968886.328125,
+    "B3_fixed": 3017215.09375,
+    "B2": 2425461373.21875,
+    "B1": 4994666244.1875
+   }
+  },
+  {
+   "split": "test2",
+   "tau_full": 90,
+   "hours": 64.0,
+   "events": 3362421,
+   "full_events": 19137,
+   "batches_per_h": {
+    "provecps": 20.703125,
+    "one_class": 40.921875,
+    "fixed": 41.390625
+   },
+   "gas_per_h": {
+    "provecps": 990126.953125,
+    "one_class": 1957088.671875,
+    "B3_fixed": 1976899.03125,
+    "B2": 2425461373.21875,
+    "B1": 4994666244.1875
+   }
+  },
+  {
+   "split": "test2",
+   "tau_full": 120,
+   "hours": 64.0,
+   "events": 3362421,
+   "full_events": 19137,
+   "batches_per_h": {
+    "provecps": 17.703125,
+    "one_class": 30.515625,
+    "fixed": 30.78125
+   },
+   "gas_per_h": {
+    "provecps": 846651.953125,
+    "one_class": 1459409.765625,
+    "B3_fixed": 1470174.0625,
+    "B2": 2425461373.21875,
+    "B1": 4994666244.1875
+   }
+  },
+  {
+   "split": "test2",
+   "tau_full": 180,
+   "hours": 64.0,
+   "events": 3362421,
+   "full_events": 19137,
+   "batches_per_h": {
+    "provecps": 14.640625,
+    "one_class": 20.234375,
+    "fixed": 20.34375
+   },
+   "gas_per_h": {
+    "provecps": 700187.890625,
+    "one_class": 967708.984375,
+    "B3_fixed": 971658.1875,
+    "B2": 2425461373.21875,
+    "B1": 4994666244.1875
+   }
+  },
+  {
+   "split": "test2",
+   "tau_full": 300,
+   "hours": 64.0,
+   "events": 3362421,
+   "full_events": 19137,
+   "batches_per_h": {
+    "provecps": 12.09375,
+    "one_class": 12.09375,
+    "fixed": 12.125
+   },
+   "gas_per_h": {
+    "provecps": 578383.59375,
+    "one_class": 578383.59375,
+    "B3_fixed": 579114.25,
+    "B2": 2425461373.21875,
+    "B1": 4994666244.1875
+   }
+  }
+ ]
+}

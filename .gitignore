@@ -1,0 +1,32 @@
+# datasets (fetched by script, CC BY-SA 4.0; not versioned here)
+data/
+# LaTeX build products
+paper/*.aux
+paper/*.bbl
+paper/*.blg
+paper/*.log
+paper/*.out
+paper/build.log
+# Foundry
+contracts/out/
+contracts/cache/
+contracts/lib/
+# testbed runtime state
+testbed/besu/network/*/data/
+# python
+__pycache__/
+*.pyc
+
+# secrets: experiment keys for shared chains
+*.env
+.env
+.venv/
+
+# generated local Besu network (contains throwaway validator private keys; recreate with testbed/besu/setup.sh)
+testbed/besu/network/
+# derived replay caches (rebuilt from data/ by prototype/provecps/hai.py)
+experiments/cache/
+# raw trial logs are committed gzip-compressed (*.jsonl.gz); the uncompressed copies are too large for git
+experiments/results/*.jsonl
+# paper build output
+paper/main.pdf
