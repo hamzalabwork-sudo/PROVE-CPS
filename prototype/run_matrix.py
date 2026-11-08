@@ -53,15 +53,21 @@ def start_anvil(binary):
 
 
 def parse_variant(v):
-    """'O=240,W=300' -> {'O': 240, 'W': 300}; '' -> {}."""
-    return {k: float(x) if "." in x else int(x) for k, x in (kv.split("=") for kv in v.split(",") if kv)}
+    """'O=240,W=300,ledger=besu-fault' -> {'O': 240, 'W': 300, 'ledger': 'besu-fault'}; '' -> {}."""
+    def val(x):
+        for cast in (int, float):
+            try:
+                return cast(x)
+            except ValueError:
+                pass
+        return x
+    return {k: val(x) for k, x in (kv.split("=") for kv in v.split(",") if kv)}
 
 
 def worker(wid, jobs, out, binary, lock):
     from provecps import hai
-    from provecps.harness import PURECHAIN_CSV, Params, run_trial
-    from provecps.ledger import Anvil, empirical_delays
-    delays = empirical_delays(PURECHAIN_CSV)
+    from provecps.harness import Params, run_trial
+    from provecps.ledger import Anvil
     reps, proc, n, port = {}, None, 0, None
     for split, attack, strat, policy, variant in iter(jobs.get, None):
         if proc is None or n % RESTART_EVERY == 0:
@@ -73,7 +79,7 @@ def worker(wid, jobs, out, binary, lock):
         rep = reps.get(split) or reps.setdefault(split, hai.build(split))
         try:
             P = Params(economy=policy == "economy", **parse_variant(variant))
-            res = run_trial(rep, attack, strat, P, Anvil(f"http://127.0.0.1:{port}"), delays)
+            res = run_trial(rep, attack, strat, P, Anvil(f"http://127.0.0.1:{port}"))  # delays: P.ledger
             res.update(split=split, policy=policy, variant=variant)
             line = json.dumps(res)
         except Exception as e:  # record and keep going; a crashed trial must be visible, not silently missing

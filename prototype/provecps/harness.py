@@ -5,6 +5,7 @@ Each trial deploys a fresh Registry on Anvil; every verdict comes from the contr
   python -m provecps.harness --split test1 --attacks all --strategies all --out ../experiments/results/attacks_test1.jsonl
 """
 import argparse
+import csv
 import json
 import math
 import time
@@ -21,6 +22,47 @@ from .store import EvidenceStore
 from .witness import Auditor, GriefWitness, Witness
 
 PURECHAIN_CSV = ROOT / "experiments/results/inclusion_latency_purechain_s28.csv"
+# Ledger delay profiles replayed by SimLedger. v2 profiles use Delta_L as the paper defines it: block timestamp of
+# the inclusion minus the submission time (experiments/latency/measure_inclusion.py, column ts_minus_submit_s).
+LAT2 = ROOT / "experiments/results/latency_v2"
+LEDGERS = {
+    "poa-v1": (PURECHAIN_CSV, None, "submit_to_receipt_ms"),            # v1: 50 samples, submit -> receipt
+    "poa": (LAT2 / "purechain.csv", "purechain-warm", "ts_minus_submit_s"),             # 2,000 samples
+    "besu": (LAT2 / "besu.csv", "besu-idle", "ts_minus_submit_s"),
+    "besu-load": (LAT2 / "besu.csv", "besu-load-25tps-2KB", "ts_minus_submit_s"),
+    "besu-fault": (LAT2 / "besu.csv", "besu-1-of-4-validators-down", "ts_minus_submit_s"),  # f = 1 of n = 4
+}
+_DELAYS = {}
+
+
+def ledger_delays(name):
+    """Delta_L samples (s) of a measured ledger profile, cached per process."""
+    if name not in _DELAYS:
+        path, label, col = LEDGERS[name]
+        with open(path, newline="") as f:
+            rows = [r for r in csv.DictReader(f) if r["phase"] not in ("first", "cold")
+                    and (label is None or r.get("label") == label)]
+        scale = 1000 if col.endswith("_ms") else 1
+        _DELAYS[name] = [float(r[col]) / scale for r in rows]
+        assert _DELAYS[name], name
+    return _DELAYS[name]
+
+
+class SilentPort:
+    """Ledger access of a corrupt witness that colludes with the gateway: it reads the ledger like everyone else
+    but never submits a challenge."""
+
+    def __init__(self, port):
+        self.port, self.suppressed = port, 0
+
+    def view(self, *a):
+        return self.port.view(*a)
+
+    def subscribe(self, cb):
+        self.port.subscribe(cb)
+
+    def submit(self, fn, args, cb=None, value=0):
+        self.suppressed += 1
 KIND = {0: "custody", 1: "notice", 2: "availability", 3: "notice_full"}
 STATUS = {2: "dismissed", 3: "late", 4: "convicted"}
 
@@ -48,6 +90,9 @@ class Params:
     notice_full: bool = True    # v2 NOTICE-FULL + second payload path; False = v1 (ablation)
     bond: int = 0               # challenge bond (wei); the griefing experiment sets it
     grief_period: float = 10.0  # griefing witness: replay period (s)
+    ledger: str = "poa"         # measured Delta_L profile replayed by the ledger (see LEDGERS)
+    witnesses: int = 1          # witnesses per witnessed device (diverse, e.g. controller + network monitor)
+    silent_witnesses: int = 0   # how many of them are corrupt and collude with the gateway (never challenge)
     seed: int = 0
 
 
@@ -83,7 +128,9 @@ def strategies(P, targets, a0, a1, unwitnessed=frozenset()):
     }
 
 
-def run_trial(rep, attack_idx, strat_name, P: Params, chain: Anvil, delays):
+def run_trial(rep, attack_idx, strat_name, P: Params, chain: Anvil, delays=None):
+    if delays is None:
+        delays = ledger_delays(P.ledger)
     w0, w1 = rep.attacks[attack_idx]
     seg0, seg1 = max(0, w0 - P.warmup), min(rep.duration, w1 + P.tail)
     sim = Sim(chain.last_ts)
@@ -113,11 +160,19 @@ def run_trial(rep, attack_idx, strat_name, P: Params, chain: Anvil, delays):
     store = EvidenceStore()
     gw = Gateway(sim, gws, LedgerPort(led, gws.address, outs), dom, policy, keys, store,
                  P.tau_full, P.tau_digest, P.safety, P.reserve, strategy)
-    witness = Witness(sim, LedgerPort(led, wit.address), dom, keys, {i: gws.address for i in devices_ids},
-                      store, P.grace, P.notice_after, P.economy, P.notice_full and not strat_name.endswith("-v1"),
-                      P.bond)
-    for a in (wit.address, signer("griefer").address):
-        chain.rpc("anvil_setBalance", [a, hex(10**30)])
+    # Witness 0 is the paper's witness. With silent_witnesses = s, the first s witnesses are corrupt: they receive
+    # every checkpoint but never challenge, and they keep their payload copies to themselves (private store).
+    wits = []
+    for k in range(P.witnesses):
+        acct = wit if k == 0 else signer(f"witness{k}")
+        corrupt = k < P.silent_witnesses
+        port = LedgerPort(led, acct.address)
+        wits.append(Witness(sim, SilentPort(port) if corrupt else port, dom, keys,
+                            {i: gws.address for i in devices_ids}, EvidenceStore() if corrupt else store, P.grace,
+                            P.notice_after, P.economy, P.notice_full and not strat_name.endswith("-v1"), P.bond))
+        chain.rpc("anvil_setBalance", [acct.address, hex(10**30)])
+    witness = next((w for k, w in enumerate(wits) if k >= P.silent_witnesses), wits[0])  # reported in "witness"
+    chain.rpc("anvil_setBalance", [signer("griefer").address, hex(10**30)])
     griefer = (GriefWitness(sim, LedgerPort(led, signer("griefer").address), sorted(rep.witnessed), P.bond,
                             P.grief_period) if strat_name == "honest-grief" else None)
     auditor = Auditor(sim, store, devices_ids, silence_after=P.heartbeat + P.tau_digest + 2 * P.safety + 30)
@@ -158,7 +213,8 @@ def run_trial(rep, attack_idx, strat_name, P: Params, chain: Anvil, delays):
         for i in rep.witnessed:
             cp = devs[i].checkpoint(sim.now)
             if cp is not None:
-                to_wit.send(witness.on_checkpoint, cp)
+                for w in wits:
+                    to_wit.send(w.on_checkpoint, cp)
                 if griefer is not None:
                     to_wit.send(griefer.on_checkpoint, cp)
         sim.after(P.p, checkpoints)
@@ -326,7 +382,7 @@ def main():
     rep = hai.build(a.split)
     P = Params(warmup=a.warmup, tail=a.tail, economy=a.economy)
     chain = Anvil(a.rpc)
-    delays = empirical_delays(PURECHAIN_CSV)
+    delays = ledger_delays(P.ledger)
     idx = range(len(rep.attacks)) if a.attacks == "all" else [int(x) for x in a.attacks.split(",")]
     names = list(strategies(P, set(), 0, 0)) if a.strategies == "all" else a.strategies.split(",")
     with open(a.out, "a") as f:

@@ -1,0 +1,228 @@
+{
+ "tau_full": 30,
+ "delta": 3.0,
+ "rows": [
+  {
+   "margin_permille": 0,
+   "step_permille": 500,
+   "full_pct": 2.471,
+   "enrichment": 3.3,
+   "recall_any": "52/52",
+   "recall_witnessed": "52/52",
+   "gas_h_M": 5.299,
+   "saving_pct": 16.8
+  },
+  {
+   "margin_permille": 0,
+   "step_permille": 700,
+   "full_pct": 2.063,
+   "enrichment": 3.9,
+   "recall_any": "52/52",
+   "recall_witnessed": "52/52",
+   "gas_h_M": 5.049,
+   "saving_pct": 20.7
+  },
+  {
+   "margin_permille": 0,
+   "step_permille": 900,
+   "full_pct": 1.993,
+   "enrichment": 4.0,
+   "recall_any": "52/52",
+   "recall_witnessed": "52/52",
+   "gas_h_M": 5.006,
+   "saving_pct": 21.4
+  },
+  {
+   "margin_permille": 0,
+   "step_permille": null,
+   "full_pct": 1.982,
+   "enrichment": 4.0,
+   "recall_any": "52/52",
+   "recall_witnessed": "52/52",
+   "gas_h_M": 5.006,
+   "saving_pct": 21.4
+  },
+  {
+   "margin_permille": 25,
+   "step_permille": 500,
+   "full_pct": 1.205,
+   "enrichment": 6.2,
+   "recall_any": "33/52",
+   "recall_witnessed": "28/52",
+   "gas_h_M": 3.905,
+   "saving_pct": 38.7
+  },
+  {
+   "margin_permille": 25,
+   "step_permille": 700,
+   "full_pct": 0.76,
+   "enrichment": 10.9,
+   "recall_any": "33/52",
+   "recall_witnessed": "28/52",
+   "gas_h_M": 2.507,
+   "saving_pct": 60.6
+  },
+  {
+   "margin_permille": 25,
+   "step_permille": 900,
+   "full_pct": 0.667,
+   "enrichment": 13.1,
+   "recall_any": "33/52",
+   "recall_witnessed": "28/52",
+   "gas_h_M": 2.161,
+   "saving_pct": 66.1
+  },
+  {
+   "margin_permille": 25,
+   "step_permille": null,
+   "full_pct": 0.563,
+   "enrichment": 17.0,
+   "recall_any": "26/52",
+   "recall_witnessed": "26/52",
+   "gas_h_M": 1.625,
+   "saving_pct": 74.5
+  },
+  {
+   "margin_permille": 50,
+   "step_permille": 500,
+   "full_pct": 1.074,
+   "enrichment": 6.8,
+   "recall_any": "32/52",
+   "recall_witnessed": "27/52",
+   "gas_h_M": 3.796,
+   "saving_pct": 40.4
+  },
+  {
+   "margin_permille": 50,
+   "step_permille": 700,
+   "full_pct": 0.618,
+   "enrichment": 14.0,
+   "recall_any": "32/52",
+   "recall_witnessed": "27/52",
+   "gas_h_M": 2.212,
+   "saving_pct": 65.3
+  },
+  {
+   "margin_permille": 50,
+   "step_permille": 900,
+   "full_pct": 0.523,
+   "enrichment": 18.1,
+   "recall_any": "32/52",
+   "recall_witnessed": "27/52",
+   "gas_h_M": 1.791,
+   "saving_pct": 71.9
+  },
+  {
+   "margin_permille": 50,
+   "step_permille": null,
+   "full_pct": 0.42,
+   "enrichment": 27.3,
+   "recall_any": "25/52",
+   "recall_witnessed": "25/52",
+   "gas_h_M": 1.195,
+   "saving_pct": 81.2
+  },
+  {
+   "margin_permille": 100,
+   "step_permille": 500,
+   "full_pct": 0.963,
+   "enrichment": 7.0,
+   "recall_any": "30/52",
+   "recall_witnessed": "24/52",
+   "gas_h_M": 3.678,
+   "saving_pct": 42.3
+  },
+  {
+   "margin_permille": 100,
+   "step_permille": 700,
+   "full_pct": 0.498,
+   "enrichment": 17.1,
+   "recall_any": "30/52",
+   "recall_witnessed": "24/52",
+   "gas_h_M": 1.939,
+   "saving_pct": 69.6
+  },
+  {
+   "margin_permille": 100,
+   "step_permille": 900,
+   "full_pct": 0.403,
+   "enrichment": 24.9,
+   "recall_any": "30/52",
+   "recall_witnessed": "24/52",
+   "gas_h_M": 1.452,
+   "saving_pct": 77.2
+  },
+  {
+   "margin_permille": 100,
+   "step_permille": null,
+   "full_pct": 0.299,
+   "enrichment": 52.0,
+   "recall_any": "22/52",
+   "recall_witnessed": "22/52",
+   "gas_h_M": 0.807,
+   "saving_pct": 87.3
+  },
+  {
+   "margin_permille": 200,
+   "step_permille": 500,
+   "full_pct": 0.9,
+   "enrichment": 6.3,
+   "recall_any": "30/52",
+   "recall_witnessed": "23/52",
+   "gas_h_M": 3.637,
+   "saving_pct": 42.9
+  },
+  {
+   "margin_permille": 200,
+   "step_permille": 700,
+   "full_pct": 0.434,
+   "enrichment": 16.8,
+   "recall_any": "30/52",
+   "recall_witnessed": "23/52",
+   "gas_h_M": 1.842,
+   "saving_pct": 71.1
+  },
+  {
+   "margin_permille": 200,
+   "step_permille": 900,
+   "full_pct": 0.337,
+   "enrichment": 26.2,
+   "recall_any": "29/52",
+   "recall_witnessed": "22/52",
+   "gas_h_M": 1.332,
+   "saving_pct": 79.1
+  },
+  {
+   "margin_permille": 200,
+   "step_permille": null,
+   "full_pct": 0.233,
+   "enrichment": 73.3,
+   "recall_any": "20/52",
+   "recall_witnessed": "20/52",
+   "gas_h_M": 0.68,
+   "saving_pct": 89.3
+  },
+  {
+   "margin_permille": null,
+   "step_permille": 900,
+   "full_pct": 0.11,
+   "enrichment": 1.9,
+   "recall_any": "22/52",
+   "recall_witnessed": "14/52",
+   "gas_h_M": 1.264,
+   "saving_pct": 80.1,
+   "note": "envelope-aware attacker: steps only"
+  },
+  {
+   "margin_permille": null,
+   "step_permille": null,
+   "full_pct": 0.0,
+   "enrichment": null,
+   "recall_any": "0/52",
+   "recall_witnessed": "0/52",
+   "gas_h_M": 0.582,
+   "saving_pct": 90.9,
+   "note": "fully stealthy attacker: no FULL event"
+  }
+ ]
+}
