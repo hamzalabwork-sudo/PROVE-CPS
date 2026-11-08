@@ -1,4 +1,4 @@
-"""Headline attack x system table for the paper, generated from the trial data (no hand-copied numbers).
+"""Headline attack x system table (LaTeX), generated from the trial data (no hand-copied numbers).
 
 Cell semantics, per suppressed event:
   attributed            -> \\CIRCLE      gateway convicted on the ledger by a dispute covering the event
@@ -8,7 +8,7 @@ Cell semantics, per suppressed event:
   covered, DIGEST event -> \\Diamond     existence proven; content not required by the policy (compliant)
   undetected            -> \\Circle
 A cell shows the symbol of the majority outcome, with its share when below 100%.
-Witnessed devices only for A1-A7 (Theorem 3 regime); the -unw columns are the Theorem 1 regime.
+Witnessed devices only for A1-A7 (achievability regime); the -unw columns are the witness-necessity regime.
 
 Usage: python tables.py matrix.jsonl  -> paper/tables/matrix.tex
 """

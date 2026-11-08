@@ -1,4 +1,4 @@
-"""Batch scheduling in isolation (Proposition 4): the cost side of the cost-detection frontier.
+"""Batch scheduling in isolation (minimal-batch stabbing): the cost side of the cost-detection frontier.
 
 The honest gateway's batch count depends only on receipt times and deadline classes, so it can be computed
 exactly without running the protocol. `stabbing` replays the rule Gateway._schedule/_fire implements (it gave

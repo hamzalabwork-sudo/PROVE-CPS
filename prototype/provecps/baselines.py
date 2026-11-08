@@ -91,7 +91,7 @@ def evaluate(trial_rows, attack, window_s, ctx):
                 label = base + ("+W" if witness else "")
             counts = {}
             for r in trial_rows:
-                # Theorem 1 regime: the '+W' path exists only for devices that have a witness
+                # witness-necessity regime: the '+W' path exists only for devices that have a witness
                 o, _ = outcome(base, witness and r["witnessed"], attack, r, gap, ctx)
                 counts[o] = counts.get(o, 0) + 1
             out[label] = counts

@@ -1,4 +1,4 @@
-"""Policy sensitivity and the envelope-aware attacker (reviewer W8), on both HAI test splits (52 attacks).
+"""Policy sensitivity and the envelope-aware attacker, on both HAI test splits (52 attacks).
 
 For each committed policy (envelope margin m, step threshold s, both in permille of the commissioning envelope):
   full_pct      share of all events the policy marks FULL
@@ -26,8 +26,8 @@ from provecps.schedule import fixed_interval, stabbing  # noqa: E402
 GAS_ANCHOR, GAS_MERKLE = 48086, 47762
 TAU_FULL, TAU_DIGEST, DELTA = 30, 300, 3.0
 INF = 10**9
-MARGINS = [0, 25, 50, 100, 200]   # permille beyond the envelope (paper policy: 50 = 5%)
-STEPS = [500, 700, 900, INF]      # permille step (paper policy: 900)
+MARGINS = [0, 25, 50, 100, 200]   # permille beyond the envelope (default policy: 50 = 5%)
+STEPS = [500, 700, 900, INF]      # permille step (default policy: 900)
 
 
 def is_full(f, m, s):

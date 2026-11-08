@@ -1,4 +1,4 @@
-"""Witness and auditor (design doc 6.3).
+"""Witness and auditor.
 
 The witness receives device checkpoints over a path that avoids the gateway and turns them into on-chain
 disputes: CUSTODY (receipted, not covered by the deadline), NOTICE (never receipted), NOTICE-FULL (never receipted
@@ -11,14 +11,14 @@ so the payload obligation cannot frame it; a gateway that refuses custody cannot
 
 Two dispute policies (both measured in the evaluation):
   strict   one dispute per overdue latest receipt per checkpoint period. Every suppressed event is named by a
-           dispute within its Theorem 3 bound, so Definition 3 holds per event and is checkable on the ledger.
+           dispute within its achievability bound, so attribution holds per event and is checkable on the ledger.
            Cost O(devices x attack duration / p), independent of the event rate, paid only under attack.
   economy  at most one open CUSTODY/NOTICE dispute per device (a dispute on head c covers every earlier event,
            I1); re-check the newest overdue receipt when it resolves; stop once the gateway is convicted.
            Cost O(devices) per attack; attribution is per gateway rather than per event.
 
 The auditor only reads the ledger and the evidence store; for devices without a witness it can raise nothing
-stronger than an unattributed SILENCE alarm (Theorem 1).
+stronger than an unattributed SILENCE alarm (witness necessity).
 """
 from . import crypto
 

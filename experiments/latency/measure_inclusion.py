@@ -1,4 +1,4 @@
-"""Measure ledger inclusion delay (Delta_L in the paper) for Registry.anchor on one chain.
+"""Measure ledger inclusion delay (Delta_L) for Registry.anchor on one chain.
 
 For each anchor transaction we record:
   submit_to_receipt_ms : client clock, from send_raw_transaction to the receipt being visible

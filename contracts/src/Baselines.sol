@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.30;
 
-/// @title Baseline archetypes from the survey (design doc 7), implemented for on-chain cost comparison.
+/// @title Baseline archetypes B1-B4 (see README), implemented for on-chain cost comparison.
 /// @notice Each baseline uses the same gateway access check as Registry (one cold SLOAD), so measured gas
 ///         differences come from the evidence design, not from omitted access control.
 ///         B5 (device-signed chain, no receipts or witness) anchors roots exactly like B3 and is not repeated.

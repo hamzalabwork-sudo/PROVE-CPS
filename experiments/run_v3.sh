@@ -1,9 +1,9 @@
 #!/bin/bash
-# v3 campaign (reviewer Tier 2). Every trial replays block-time Delta_L from the 2,000-sample v2 measurements
+# v3 campaign. Every trial replays block-time Delta_L from the 2,000-sample v2 measurements
 # (Params.ledger, default "poa"). Resumable: re-running skips trials already in each output file.
-#   1. matrix_v3     52 attacks x 27 strategy-policy pairs, seed 0                       (W5: headline results)
+#   1. matrix_v3     52 attacks x 27 strategy-policy pairs, seed 0                       (headline results)
 #   2. robust_v3     faulty-validator / loaded ledger profiles; diverse and corrupt witnesses;
-#                    nu and delta sweeps                                                 (W2, W6, sensitivity)
+#                    nu and delta sweeps                                                 (robustness, sensitivity)
 #   3. seeds_v3      seeds 1-9 of the strict matrix                                      (95% confidence intervals)
 set -u
 cd ~/provecps/prototype

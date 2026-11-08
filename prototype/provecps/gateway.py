@@ -1,7 +1,7 @@
-"""Gateway agent (design doc 6.2) and the adversarial strategies A1-A8 (design doc 7).
+"""Gateway agent and the adversarial strategies A1-A9.
 
 The honest gateway: verify device signature and chain link, issue a receipt with a policy deadline, replicate
-FULL payloads, and anchor with the deadline-safe earliest-deadline stabbing rule (Prop 4): when the earliest
+FULL payloads, and anchor with the deadline-safe earliest-deadline stabbing rule (minimal batches): when the earliest
 pending deadline minus (safety + reserve) arrives, close one batch containing the latest head of every device
 with receipted-but-unanchored events. An attack is a Strategy that overrides individual decisions; everything
 else, including how the gateway answers challenges, is the same code.
@@ -106,7 +106,7 @@ class RefuseCustody(_Targeted):
 
 
 class SlowWalk(_Targeted):
-    """A9: the worst case for detection that Theorem 2 allows. Withhold each target receipt for just under the notice
+    """A9: the worst case for detection that the achievability bound allows. Withhold each target receipt for just under the notice
     threshold (so no NOTICE fires), stretch its deadline by the clock tolerance the device accepts, then never anchor
     (truncation). Detection must then wait for the stretched deadline of a late receipt."""
     name = "A9-slow-walk"
@@ -261,7 +261,7 @@ class Gateway:
         digest = crypto.checkpoint_digest(self.domain, h.device_id, h.counter, msg.head.head)
         return crypto.recover(digest, msg.head.sig) == self.device_keys.get(h.device_id)
 
-    # ------------------------------------------------------------------ scheduler (Prop 4)
+    # ------------------------------------------------------------------ scheduler (stabbing)
 
     def _schedule(self):
         heap = self.heap

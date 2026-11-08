@@ -6,10 +6,10 @@ import {EIP712} from "@openzeppelin/contracts/utils/cryptography/EIP712.sol";
 import {MerkleProof} from "@openzeppelin/contracts/utils/cryptography/MerkleProof.sol";
 
 /// @title PROVE-CPS evidence registry (v2)
-/// @notice The ledger as a clocked adjudicator (design doc, insight I4). In the honest case a
+/// @notice The ledger as a clocked adjudicator (insight I4). In the honest case a
 ///         gateway only calls `anchor` (one storage write per batch, independent of the number of
 ///         devices and events). Every other function is a dispute path, used only when someone cheats.
-/// @dev Data model (design doc section 2):
+/// @dev Data model:
 ///      - Device chain:   H_c = keccak256(abi.encode(H_{c-1}, eventHash(e_c))), H_0 = 0.
 ///      - Batch leaf:     keccak256(bytes.concat(keccak256(abi.encode(deviceId, counter, head)))).
 ///      - Receipt:        EIP-712, signed by a gateway; transfers custody of all events <= counter.
@@ -18,7 +18,7 @@ import {MerkleProof} from "@openzeppelin/contracts/utils/cryptography/MerkleProo
 ///      block height stops advancing while the chain idles, so it cannot serve as the adjudicator's
 ///      clock. Policy activation uses the event's device-signed timestamp, so a gateway cannot
 ///      choose which policy applies.
-///      v2 (after blind review): NOTICE-FULL makes the payload of a notified FULL event a
+///      v2: NOTICE-FULL makes the payload of a notified FULL event a
 ///      convictable obligation even without a receipt; `anchorAndRespond` answers in one
 ///      transaction; a challenger bond and the `proven` frontier bound griefing; two device-signed
 ///      heads for one counter revoke the device key; the first anchoring time of a root is kept.

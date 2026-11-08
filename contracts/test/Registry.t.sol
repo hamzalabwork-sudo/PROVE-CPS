@@ -4,8 +4,8 @@ pragma solidity 0.8.30;
 import {Test} from "forge-std/Test.sol";
 import {Registry} from "../src/Registry.sol";
 
-/// Tests are organised by the attack taxonomy of the paper (A1-A7) plus the
-/// non-frameability property of Definition 3.
+/// Tests are organised by the attack taxonomy (A1-A7) plus the
+/// non-frameability property of the accountability definition.
 contract RegistryTest is Test {
     Registry reg;
 
@@ -439,7 +439,7 @@ contract RegistryTest is Test {
     }
 
 
-    /// Definition 3(3): for any honest history (n events, receipt at k, anchored head m >= k
+    /// Non-frameability: for any honest history (n events, receipt at k, anchored head m >= k
     /// before the deadline), the honest gateway's response is always accepted and it is never convicted.
     function testFuzz_NonFrameability_Custody(uint8 nRaw, uint8 kRaw, uint8 mRaw, uint8 slack) public {
         uint64 n = uint64(bound(nRaw, 1, 64));

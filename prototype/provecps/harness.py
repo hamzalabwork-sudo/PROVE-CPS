@@ -1,5 +1,5 @@
 """Attack harness: replay one HAI attack window through devices -> gateway -> ledger, with a witness and an
-auditor, under an honest or adversarial gateway, and score every suppressed event against Definition 3.
+auditor, under an honest or adversarial gateway, and score every suppressed event against the accountability definition (README).
 
 Each trial deploys a fresh Registry on Anvil; every verdict comes from the contract. Usage:
   python -m provecps.harness --split test1 --attacks all --strategies all --out ../experiments/results/attacks_test1.jsonl
@@ -22,7 +22,7 @@ from .store import EvidenceStore
 from .witness import Auditor, GriefWitness, Witness
 
 PURECHAIN_CSV = ROOT / "experiments/results/inclusion_latency_purechain_s28.csv"
-# Ledger delay profiles replayed by SimLedger. v2 profiles use Delta_L as the paper defines it: block timestamp of
+# Ledger delay profiles replayed by SimLedger. v2 profiles use Delta_L as the registry sees it: block timestamp of
 # the inclusion minus the submission time (experiments/latency/measure_inclusion.py, column ts_minus_submit_s).
 LAT2 = ROOT / "experiments/results/latency_v2"
 LEDGERS = {
@@ -118,10 +118,10 @@ def strategies(P, targets, a0, a1, unwitnessed=frozenset()):
         "A7": (Stonewall(targets, a0), True, targets),          # stonewall timed to a real partition
         "A8": (RefuseCustody(targets, a0), False, targets),     # refuse custody, answer plain notices
         "A8-v1": (RefuseCustody(targets, a0), False, targets),  # ablation: the same attack against v1 (no NOTICE-FULL)
-        "A9": (SlowWalk(targets, a0, P.notice_after - 1, P.sigma - 1), False, targets),  # worst case for Theorem 2
+        "A9": (SlowWalk(targets, a0, P.notice_after - 1, P.sigma - 1), False, targets),  # worst case for the achievability bound
         "honest-partition": (Honest(), True, targets),          # same partition, honest gateway
         "honest-grief": (Honest(), False, targets),             # honest gateway vs. a challenge-flooding witness
-        # Theorem 1: an attacker who knows the witness topology suppresses only devices without a witness.
+        # witness necessity: an attacker who knows the witness topology suppresses only devices without a witness.
         "A1-unw": (TailTruncation(unwitnessed, a0), False, unwitnessed),
         "A3-unw": (Stonewall(unwitnessed, a0), False, unwitnessed),
         "A4-unw": (Disguise(unwitnessed, a0, a1), False, unwitnessed),
@@ -160,7 +160,7 @@ def run_trial(rep, attack_idx, strat_name, P: Params, chain: Anvil, delays=None)
     store = EvidenceStore()
     gw = Gateway(sim, gws, LedgerPort(led, gws.address, outs), dom, policy, keys, store,
                  P.tau_full, P.tau_digest, P.safety, P.reserve, strategy)
-    # Witness 0 is the paper's witness. With silent_witnesses = s, the first s witnesses are corrupt: they receive
+    # Witness 0 is the reference witness. With silent_witnesses = s, the first s witnesses are corrupt: they receive
     # every checkpoint but never challenge, and they keep their payload copies to themselves (private store).
     wits = []
     for k in range(P.witnesses):
@@ -247,7 +247,7 @@ def run_trial(rep, attack_idx, strat_name, P: Params, chain: Anvil, delays=None)
 
 
 def theorem_bounds(P, full, dl_max):
-    """Theorem 2: Delta_d <= nu + p + tau_k + sigma + Delta_L + 3 and Delta_a <= Delta_d + W_resp + Delta_L + 2
+    """Achievability bound: Delta_d <= nu + p + tau_k + sigma + Delta_L + 3 and Delta_a <= Delta_d + W_resp + Delta_L + 2
     (integer block timestamps: ceil of the deadline, the strict deadline comparison, ceil of inclusion)."""
     tau = P.tau_full if full else P.tau_digest
     d = P.notice_after + P.p + tau + P.sigma + dl_max + 3
@@ -309,7 +309,7 @@ def score(rep, strat_name, P, led, store, auditor, gen, targets, A0, A1, attack_
                       default=None)
         rc = devs[dev].receipt
         flagged = min((t for t in (t_ch, t_alarm) if t is not None), default=None)
-        detected = min((t for t in (t_cov, t_ch) if t is not None), default=None)  # Definition 3 detection
+        detected = min((t for t in (t_cov, t_ch) if t is not None), default=None)  # detection
         # A FULL event counts as covered only if its payload reached the evidence store through the gateway's own
         # obligations (custody replication or a published answer); a witness's copy does not discharge them.
         payload_ok = (not full) or store.has_payload(ph)
@@ -322,7 +322,7 @@ def score(rep, strat_name, P, led, store, auditor, gen, targets, A0, A1, attack_
             "receipted": rc is not None and rc.counter >= c,  # a gateway-signed custody receipt exists for e
             "d_det": d(detected), "d_flag": d(flagged), "d_ch": d(t_ch), "d_alarm": d(t_alarm),
             "d_attr": d(t_conv), "d_cov": d(t_cov),
-            # Theorem 2 (achievability), exactly as stated: nu + p + tau_k + sigma + Delta_L + 3 s of rounding
+            # achievability bound: nu + p + tau_k + sigma + Delta_L + 3 s of rounding
             "bound_d": theorem_bounds(P, full, dl_max)[0],
             "bound_a": theorem_bounds(P, full, dl_max)[1],
         })
@@ -362,7 +362,7 @@ def summarize(res):
         out["witnessed" if w else "unwitnessed"] = {
             "n": len(rs), **cnt, "max_d_det": mx("d_det"), "max_d_flag": mx("d_flag"), "max_d_attr": mx("d_attr"),
         }
-        if w:  # Theorem 3 makes a claim only for devices with a witness
+        if w:  # the bounds make a claim only for devices with a witness
             out["witnessed"]["within_bound"] = all(r["d_det"] <= r["bound_d"] for r in rs if r["d_det"] is not None)
             out["witnessed"]["within_bound_a"] = all(r["d_attr"] <= r["bound_a"] for r in rs if r["d_attr"] is not None)
     return out

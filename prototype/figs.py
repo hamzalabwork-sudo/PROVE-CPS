@@ -1,4 +1,4 @@
-"""Paper figures (IEEE column width, print). Palette: reference categorical slots 1-4 in fixed order, validated
+"""Evaluation figures (IEEE column width, print). Palette: reference categorical slots 1-4 in fixed order, validated
 light-mode (adjacent CVD dE >= 9.1); slots 3-4 are < 3:1 on the surface, so every series is direct-labelled and
 carries a distinct marker/linestyle (survives grayscale print).
 

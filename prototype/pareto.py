@@ -1,4 +1,4 @@
-"""Cost-detection frontier (Proposition 4) on the full HAI test traces.
+"""Cost-detection frontier (minimal-batch stabbing) on the full HAI test traces.
 
 For each FULL-event deadline tau_full (the detection bound that matters for incident evidence):
   PROVE-CPS   greedy stabbing with two classes (FULL: tau_full, DIGEST: tau_digest)

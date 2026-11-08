@@ -1,4 +1,4 @@
-"""Every number the v2 evaluation text quotes, recomputed from matrix_v2.jsonl (no hand copying)."""
+"""Every headline number of the v2 evaluation, recomputed from matrix_v2.jsonl (no hand copying)."""
 import json, sys
 from collections import Counter, defaultdict
 sys.path.insert(0, "../../prototype")
@@ -6,7 +6,7 @@ rows = [json.loads(l) for l in open(sys.argv[1])]
 S = lambda s, pol="strict": [t for t in rows if t["strategy"] == s and t.get("policy", "strict") == pol]
 q = lambda v, p: sorted(v)[min(len(v) - 1, int(p * len(v)))] if v else None
 out = {"trials": len(rows), "errors": sum("error" in t for t in rows)}
-# Table III: delays per strategy and class (strict, witnessed, outcome-relevant events)
+# delays per strategy and class (strict, witnessed, outcome-relevant events)
 tab = {}
 for s in ("A1", "A2", "A3", "A4", "A7", "A8", "A9"):
     for full in (True, False):

@@ -1,4 +1,4 @@
-"""Device agent (design doc 6.1). Transport-agnostic: the caller delivers messages and drives the clock.
+"""Device agent. Transport-agnostic: the caller delivers messages and drives the clock.
 
 Runs unchanged on a Raspberry Pi; the only dependencies are keccak and secp256k1.
 """

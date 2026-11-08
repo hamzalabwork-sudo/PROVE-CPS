@@ -1,6 +1,6 @@
-"""Aggregate attack-matrix trials into the paper's tables.
+"""Aggregate attack-matrix trials into summary tables.
 
-  T1  PROVE-CPS per strategy and witness regime: outcome shares, detection/attribution delays vs Theorem 3,
+  T1  PROVE-CPS per strategy and witness regime: outcome shares, detection/attribution delays vs the bounds,
       gateway convictions, dispute count and gas (strict vs economy witness policy)
   T2  headline matrix: attack x system, share of suppressed events attributed / flagged / covered / undetected
   T3  non-frameability: convictions of honest gateways (all honest trials, incl. real partitions)
@@ -41,7 +41,7 @@ def load(path):
 
 
 def bounds(P, full, dl_max):
-    """Theorem 2 exactly as stated in the paper (same formula as harness.theorem_bounds)."""
+    """The achievability bound (same formula as harness.theorem_bounds)."""
     tau = P["tau_full"] if full else P["tau_digest"]
     d = P["notice_after"] + P["p"] + tau + P.get("sigma", 5) + dl_max + 3
     return d, d + P["W"] + dl_max + 2
@@ -68,7 +68,7 @@ def table1(trials):
                 "d_det_p50": q(det, .5), "d_det_max": max(det, default=None),
                 "d_attr_p50": q(att, .5), "d_attr_max": max(att, default=None),
             }
-            # Definition 3 at gateway level (what the economy witness guarantees): the custodian is convicted on the
+            # attribution at gateway level (what the economy witness guarantees): the custodian is convicted on the
             # ledger and a gateway-signed receipt proves it held the event; unreceipted events never left the device.
             conv_rows = [(r, t["gateway_convicted"]) for t in ts for r in t["rows"] if r["witnessed"] == w]
             g[regime]["receipt_backed_conviction"] = pct(sum(c and r.get("receipted", False) for r, c in conv_rows), len(ev))

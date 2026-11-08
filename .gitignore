@@ -35,3 +35,8 @@ paper/figs/*.log
 paper/*.fdb_latexmk
 paper/*.fls
 paper/*.synctex.gz
+
+# manuscript, literature notes and design notes are kept out of the public code repository
+paper/
+research/
+design/

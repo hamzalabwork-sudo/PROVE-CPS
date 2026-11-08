@@ -6,7 +6,7 @@
 (* Time is integer block time. Every transaction lands on the ledger       *)
 (* 1..DL ticks after it is sent (DL = worst-case inclusion delay). The     *)
 (* witness sees checkpoints immediately (p = 1, T_w = 0) and device clocks *)
-(* are exact (sigma = 0), so the paper's bounds specialise to              *)
+(* are exact (sigma = 0), so the achievability bounds become              *)
 (*   Delta_d <= NU + TAU + 1 + DL     Delta_a <= Delta_d + W               *)
 (* (worst case: receipt just before the notice threshold, deadline then    *)
 (* passes, CUSTODY lands DL later; +1 because "passed" is strict).         *)
