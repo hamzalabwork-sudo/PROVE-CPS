@@ -5,7 +5,8 @@ from collections import defaultdict
 
 class EvidenceStore:
     def __init__(self):
-        self.payloads = {}                   # payload hash -> bytes
+        self.payloads = {}                   # payload hash -> bytes, published by the gateway (its obligation)
+        self.witness_payloads = {}           # payload hash -> bytes, copies held by witnesses (second path, v2)
         self.manifests = {}                  # root -> (gateway, anchored_ts, [(dev, counter, head, sig, proof)])
         self.by_device = defaultdict(list)   # dev -> [(counter, root, head, sig, proof)]
         self.custody_log = {}                # (gateway, dev, counter) -> Receipt

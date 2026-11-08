@@ -1,0 +1,1273 @@
+{
+ "trials": 1404,
+ "errors": 0,
+ "error_samples": [],
+ "T1": {
+  "A1 [economy]": {
+   "trials": 52,
+   "gateway_convicted": 52,
+   "witnessed": {
+    "events": 55374,
+    "attributed": 11.06,
+    "flagged-unattributed": 88.94,
+    "d_det_p50": 118,
+    "d_det_max": 314,
+    "d_attr_p50": 421,
+    "d_attr_max": 617,
+    "receipt_backed_conviction": 100.0,
+    "retained_by_device": 0.0,
+    "det_within_thm3": 100.0,
+    "attr_within_thm3": 100.0
+   },
+   "unwitnessed": {
+    "events": 7258,
+    "flagged-unattributed": 100.0,
+    "d_det_p50": null,
+    "d_det_max": null,
+    "d_attr_p50": null,
+    "d_attr_max": null,
+    "receipt_backed_conviction": 100.0,
+    "retained_by_device": 0.0
+   },
+   "dispute_txs_per_trial_p50": 60,
+   "dispute_gas_per_trial_p50": 4442404,
+   "anchor_gas_per_trial_p50": 769352
+  },
+  "A1 [strict]": {
+   "trials": 52,
+   "gateway_convicted": 52,
+   "witnessed": {
+    "events": 55374,
+    "attributed": 100.0,
+    "d_det_p50": 304,
+    "d_det_max": 314,
+    "d_attr_p50": 607,
+    "d_attr_max": 618,
+    "receipt_backed_conviction": 100.0,
+    "retained_by_device": 0.0,
+    "det_within_thm3": 100.0,
+    "attr_within_thm3": 100.0
+   },
+   "unwitnessed": {
+    "events": 7258,
+    "flagged-unattributed": 100.0,
+    "d_det_p50": null,
+    "d_det_max": null,
+    "d_attr_p50": null,
+    "d_attr_max": null,
+    "receipt_backed_conviction": 100.0,
+    "retained_by_device": 0.0
+   },
+   "dispute_txs_per_trial_p50": 3650,
+   "dispute_gas_per_trial_p50": 274108428,
+   "anchor_gas_per_trial_p50": 769352
+  },
+  "A1-unw [economy]": {
+   "trials": 52,
+   "gateway_convicted": 0,
+   "unwitnessed": {
+    "events": 7258,
+    "flagged-unattributed": 100.0,
+    "d_det_p50": null,
+    "d_det_max": null,
+    "d_attr_p50": null,
+    "d_attr_max": null,
+    "receipt_backed_conviction": 0.0,
+    "retained_by_device": 0.0
+   },
+   "dispute_txs_per_trial_p50": 0,
+   "dispute_gas_per_trial_p50": 0,
+   "anchor_gas_per_trial_p50": 769364
+  },
+  "A1-unw [strict]": {
+   "trials": 52,
+   "gateway_convicted": 0,
+   "unwitnessed": {
+    "events": 7258,
+    "flagged-unattributed": 100.0,
+    "d_det_p50": null,
+    "d_det_max": null,
+    "d_attr_p50": null,
+    "d_attr_max": null,
+    "receipt_backed_conviction": 0.0,
+    "retained_by_device": 0.0
+   },
+   "dispute_txs_per_trial_p50": 0,
+   "dispute_gas_per_trial_p50": 0,
+   "anchor_gas_per_trial_p50": 769340
+  },
+  "A2 [economy]": {
+   "trials": 52,
+   "gateway_convicted": 27,
+   "witnessed": {
+    "events": 55374,
+    "attributed": 3.54,
+    "covered": 85.89,
+    "d_det_p50": 27,
+    "d_det_max": 301,
+    "d_attr_p50": 337,
+    "d_attr_max": 339,
+    "receipt_backed_conviction": 72.67,
+    "retained_by_device": 0.0,
+    "det_within_thm3": 100.0,
+    "attr_within_thm3": 100.0
+   },
+   "unwitnessed": {
+    "events": 7258,
+    "covered": 86.58,
+    "d_det_p50": 29,
+    "d_det_max": 300,
+    "d_attr_p50": null,
+    "d_attr_max": null,
+    "receipt_backed_conviction": 65.73,
+    "retained_by_device": 0.0
+   },
+   "dispute_txs_per_trial_p50": 2,
+   "dispute_gas_per_trial_p50": 231594,
+   "anchor_gas_per_trial_p50": 769352
+  },
+  "A2 [strict]": {
+   "trials": 52,
+   "gateway_convicted": 27,
+   "witnessed": {
+    "events": 55374,
+    "attributed": 14.11,
+    "covered": 85.89,
+    "d_det_p50": 27,
+    "d_det_max": 301,
+    "d_attr_p50": 337,
+    "d_attr_max": 339,
+    "receipt_backed_conviction": 72.67,
+    "retained_by_device": 0.0,
+    "det_within_thm3": 100.0,
+    "attr_within_thm3": 100.0
+   },
+   "unwitnessed": {
+    "events": 7258,
+    "covered": 86.58,
+    "d_det_p50": 29,
+    "d_det_max": 300,
+    "d_attr_p50": null,
+    "d_attr_max": null,
+    "receipt_backed_conviction": 65.73,
+    "retained_by_device": 0.0
+   },
+   "dispute_txs_per_trial_p50": 2,
+   "dispute_gas_per_trial_p50": 231582,
+   "anchor_gas_per_trial_p50": 769352
+  },
+  "A3 [economy]": {
+   "trials": 52,
+   "gateway_convicted": 52,
+   "witnessed": {
+    "events": 55374,
+    "attributed": 22.03,
+    "flagged-unattributed": 77.97,
+    "d_det_p50": 18,
+    "d_det_max": 253,
+    "d_attr_p50": 321,
+    "d_attr_max": 557,
+    "receipt_backed_conviction": 0.0,
+    "retained_by_device": 100.0,
+    "det_within_thm3": 100.0,
+    "attr_within_thm3": 100.0
+   },
+   "unwitnessed": {
+    "events": 7258,
+    "flagged-unattributed": 100.0,
+    "d_det_p50": null,
+    "d_det_max": null,
+    "d_attr_p50": null,
+    "d_attr_max": null,
+    "receipt_backed_conviction": 0.0,
+    "retained_by_device": 100.0
+   },
+   "dispute_txs_per_trial_p50": 61,
+   "dispute_gas_per_trial_p50": 4528575,
+   "anchor_gas_per_trial_p50": 528910
+  },
+  "A3 [strict]": {
+   "trials": 52,
+   "gateway_convicted": 52,
+   "witnessed": {
+    "events": 55374,
+    "attributed": 100.0,
+    "d_det_p50": 8,
+    "d_det_max": 28,
+    "d_attr_p50": 312,
+    "d_attr_max": 332,
+    "receipt_backed_conviction": 0.0,
+    "retained_by_device": 100.0,
+    "det_within_thm3": 100.0,
+    "attr_within_thm3": 100.0
+   },
+   "unwitnessed": {
+    "events": 7258,
+    "flagged-unattributed": 100.0,
+    "d_det_p50": null,
+    "d_det_max": null,
+    "d_attr_p50": null,
+    "d_attr_max": null,
+    "receipt_backed_conviction": 0.0,
+    "retained_by_device": 100.0
+   },
+   "dispute_txs_per_trial_p50": 3798,
+   "dispute_gas_per_trial_p50": 283829216,
+   "anchor_gas_per_trial_p50": 528934
+  },
+  "A3-unw [economy]": {
+   "trials": 52,
+   "gateway_convicted": 0,
+   "unwitnessed": {
+    "events": 7258,
+    "flagged-unattributed": 100.0,
+    "d_det_p50": null,
+    "d_det_max": null,
+    "d_attr_p50": null,
+    "d_attr_max": null,
+    "receipt_backed_conviction": 0.0,
+    "retained_by_device": 0.0
+   },
+   "dispute_txs_per_trial_p50": 0,
+   "dispute_gas_per_trial_p50": 0,
+   "anchor_gas_per_trial_p50": 577032
+  },
+  "A3-unw [strict]": {
+   "trials": 52,
+   "gateway_convicted": 0,
+   "unwitnessed": {
+    "events": 7258,
+    "flagged-unattributed": 100.0,
+    "d_det_p50": null,
+    "d_det_max": null,
+    "d_attr_p50": null,
+    "d_attr_max": null,
+    "receipt_backed_conviction": 0.0,
+    "retained_by_device": 0.0
+   },
+   "dispute_txs_per_trial_p50": 0,
+   "dispute_gas_per_trial_p50": 0,
+   "anchor_gas_per_trial_p50": 577020
+  },
+  "A4 [economy]": {
+   "trials": 52,
+   "gateway_convicted": 27,
+   "witnessed": {
+    "events": 7811,
+    "attributed": 25.09,
+    "d_det_p50": 17,
+    "d_det_max": 31,
+    "d_attr_p50": 337,
+    "d_attr_max": 339,
+    "receipt_backed_conviction": 100.0,
+    "retained_by_device": 0.0,
+    "det_within_thm3": 100.0,
+    "attr_within_thm3": 100.0
+   },
+   "unwitnessed": {
+    "events": 974,
+    "d_det_p50": 18,
+    "d_det_max": 31,
+    "d_attr_p50": null,
+    "d_attr_max": null,
+    "receipt_backed_conviction": 97.54,
+    "retained_by_device": 0.0
+   },
+   "dispute_txs_per_trial_p50": 2,
+   "dispute_gas_per_trial_p50": 231594,
+   "anchor_gas_per_trial_p50": 769340
+  },
+  "A4 [strict]": {
+   "trials": 52,
+   "gateway_convicted": 27,
+   "witnessed": {
+    "events": 7811,
+    "attributed": 100.0,
+    "d_det_p50": 17,
+    "d_det_max": 31,
+    "d_attr_p50": 337,
+    "d_attr_max": 339,
+    "receipt_backed_conviction": 100.0,
+    "retained_by_device": 0.0,
+    "det_within_thm3": 100.0,
+    "attr_within_thm3": 100.0
+   },
+   "unwitnessed": {
+    "events": 974,
+    "d_det_p50": 18,
+    "d_det_max": 31,
+    "d_attr_p50": null,
+    "d_attr_max": null,
+    "receipt_backed_conviction": 97.54,
+    "retained_by_device": 0.0
+   },
+   "dispute_txs_per_trial_p50": 2,
+   "dispute_gas_per_trial_p50": 231594,
+   "anchor_gas_per_trial_p50": 769352
+  },
+  "A4-unw [economy]": {
+   "trials": 52,
+   "gateway_convicted": 0,
+   "unwitnessed": {
+    "events": 974,
+    "d_det_p50": 18,
+    "d_det_max": 31,
+    "d_attr_p50": null,
+    "d_attr_max": null,
+    "receipt_backed_conviction": 0.0,
+    "retained_by_device": 0.0
+   },
+   "dispute_txs_per_trial_p50": 0,
+   "dispute_gas_per_trial_p50": 0,
+   "anchor_gas_per_trial_p50": 769352
+  },
+  "A4-unw [strict]": {
+   "trials": 52,
+   "gateway_convicted": 0,
+   "unwitnessed": {
+    "events": 974,
+    "d_det_p50": 18,
+    "d_det_max": 31,
+    "d_attr_p50": null,
+    "d_attr_max": null,
+    "receipt_backed_conviction": 0.0,
+    "retained_by_device": 0.0
+   },
+   "dispute_txs_per_trial_p50": 0,
+   "dispute_gas_per_trial_p50": 0,
+   "anchor_gas_per_trial_p50": 769352
+  },
+  "A5 [strict]": {
+   "trials": 52,
+   "gateway_convicted": 52,
+   "dispute_txs_per_trial_p50": 1,
+   "dispute_gas_per_trial_p50": 64102,
+   "anchor_gas_per_trial_p50": 769340,
+   "equivocation_proven": "52/52",
+   "equivocation_at_max_s": 14
+  },
+  "A6 [economy]": {
+   "trials": 52,
+   "gateway_convicted": 0,
+   "witnessed": {
+    "events": 55374,
+    "late": 62.63,
+    "covered": 37.37,
+    "d_det_p50": 140,
+    "d_det_max": 359,
+    "d_attr_p50": null,
+    "d_attr_max": null,
+    "receipt_backed_conviction": 0.0,
+    "retained_by_device": 0.0,
+    "det_within_thm3": 91.81,
+    "attr_within_thm3": null
+   },
+   "unwitnessed": {
+    "events": 7258,
+    "covered": 100.0,
+    "d_det_p50": 145,
+    "d_det_max": 361,
+    "d_attr_p50": null,
+    "d_attr_max": null,
+    "receipt_backed_conviction": 0.0,
+    "retained_by_device": 0.0
+   },
+   "dispute_txs_per_trial_p50": 102,
+   "dispute_gas_per_trial_p50": 11398445,
+   "anchor_gas_per_trial_p50": 6058632
+  },
+  "A6 [strict]": {
+   "trials": 52,
+   "gateway_convicted": 0,
+   "witnessed": {
+    "events": 55374,
+    "late": 62.64,
+    "covered": 37.36,
+    "d_det_p50": 140,
+    "d_det_max": 314,
+    "d_attr_p50": null,
+    "d_attr_max": null,
+    "receipt_backed_conviction": 0.0,
+    "retained_by_device": 0.0,
+    "det_within_thm3": 100.0,
+    "attr_within_thm3": null
+   },
+   "unwitnessed": {
+    "events": 7258,
+    "covered": 100.0,
+    "d_det_p50": 145,
+    "d_det_max": 361,
+    "d_attr_p50": null,
+    "d_attr_max": null,
+    "receipt_backed_conviction": 0.0,
+    "retained_by_device": 0.0
+   },
+   "dispute_txs_per_trial_p50": 242,
+   "dispute_gas_per_trial_p50": 27652386,
+   "anchor_gas_per_trial_p50": 6635616
+  },
+  "A7 [economy]": {
+   "trials": 52,
+   "gateway_convicted": 52,
+   "witnessed": {
+    "events": 55374,
+    "attributed": 21.97,
+    "flagged-unattributed": 78.03,
+    "d_det_p50": 18,
+    "d_det_max": 253,
+    "d_attr_p50": 321,
+    "d_attr_max": 557,
+    "receipt_backed_conviction": 0.0,
+    "retained_by_device": 100.0,
+    "det_within_thm3": 100.0,
+    "attr_within_thm3": 100.0
+   },
+   "unwitnessed": {
+    "events": 7258,
+    "flagged-unattributed": 100.0,
+    "d_det_p50": null,
+    "d_det_max": null,
+    "d_attr_p50": null,
+    "d_attr_max": null,
+    "receipt_backed_conviction": 0.0,
+    "retained_by_device": 100.0
+   },
+   "dispute_txs_per_trial_p50": 67,
+   "dispute_gas_per_trial_p50": 5138898,
+   "anchor_gas_per_trial_p50": 480860
+  },
+  "A7 [strict]": {
+   "trials": 52,
+   "gateway_convicted": 52,
+   "witnessed": {
+    "events": 55374,
+    "attributed": 100.0,
+    "d_det_p50": 8,
+    "d_det_max": 28,
+    "d_attr_p50": 312,
+    "d_attr_max": 332,
+    "receipt_backed_conviction": 0.0,
+    "retained_by_device": 100.0,
+    "det_within_thm3": 100.0,
+    "attr_within_thm3": 100.0
+   },
+   "unwitnessed": {
+    "events": 7258,
+    "flagged-unattributed": 100.0,
+    "d_det_p50": null,
+    "d_det_max": null,
+    "d_attr_p50": null,
+    "d_attr_max": null,
+    "receipt_backed_conviction": 0.0,
+    "retained_by_device": 100.0
+   },
+   "dispute_txs_per_trial_p50": 3868,
+   "dispute_gas_per_trial_p50": 291760438,
+   "anchor_gas_per_trial_p50": 480860
+  },
+  "A8 [economy]": {
+   "trials": 52,
+   "gateway_convicted": 40,
+   "witnessed": {
+    "events": 55374,
+    "attributed": 15.16,
+    "covered": 61.04,
+    "flagged-unattributed": 23.78,
+    "d_det_p50": 8,
+    "d_det_max": 28,
+    "d_attr_p50": 337,
+    "d_attr_max": 1291,
+    "receipt_backed_conviction": 0.0,
+    "retained_by_device": 87.3,
+    "det_within_thm3": 100.0,
+    "attr_within_thm3": 96.81
+   },
+   "unwitnessed": {
+    "events": 7258,
+    "flagged-unattributed": 100.0,
+    "d_det_p50": null,
+    "d_det_max": null,
+    "d_attr_p50": null,
+    "d_attr_max": null,
+    "receipt_backed_conviction": 0.0,
+    "retained_by_device": 84.29
+   },
+   "dispute_txs_per_trial_p50": 972,
+   "dispute_gas_per_trial_p50": 104095502,
+   "anchor_gas_per_trial_p50": 528922
+  },
+  "A8 [strict]": {
+   "trials": 52,
+   "gateway_convicted": 40,
+   "witnessed": {
+    "events": 55374,
+    "attributed": 34.87,
+    "covered": 65.13,
+    "d_det_p50": 8,
+    "d_det_max": 28,
+    "d_attr_p50": 322,
+    "d_attr_max": 1624,
+    "receipt_backed_conviction": 0.0,
+    "retained_by_device": 87.3,
+    "det_within_thm3": 100.0,
+    "attr_within_thm3": 95.74
+   },
+   "unwitnessed": {
+    "events": 7258,
+    "flagged-unattributed": 100.0,
+    "d_det_p50": null,
+    "d_det_max": null,
+    "d_attr_p50": null,
+    "d_attr_max": null,
+    "receipt_backed_conviction": 0.0,
+    "retained_by_device": 84.29
+   },
+   "dispute_txs_per_trial_p50": 2018,
+   "dispute_gas_per_trial_p50": 222042668,
+   "anchor_gas_per_trial_p50": 528922
+  },
+  "A8-v1 [economy]": {
+   "trials": 52,
+   "gateway_convicted": 0,
+   "witnessed": {
+    "events": 55374,
+    "covered": 85.89,
+    "d_det_p50": 8,
+    "d_det_max": 28,
+    "d_attr_p50": null,
+    "d_attr_max": null,
+    "receipt_backed_conviction": 0.0,
+    "retained_by_device": 0.0,
+    "det_within_thm3": 100.0,
+    "attr_within_thm3": null
+   },
+   "unwitnessed": {
+    "events": 7258,
+    "flagged-unattributed": 100.0,
+    "d_det_p50": null,
+    "d_det_max": null,
+    "d_attr_p50": null,
+    "d_attr_max": null,
+    "receipt_backed_conviction": 0.0,
+    "retained_by_device": 0.0
+   },
+   "dispute_txs_per_trial_p50": 1946,
+   "dispute_gas_per_trial_p50": 221740966,
+   "anchor_gas_per_trial_p50": 528922
+  },
+  "A8-v1 [strict]": {
+   "trials": 52,
+   "gateway_convicted": 0,
+   "witnessed": {
+    "events": 55374,
+    "covered": 85.89,
+    "d_det_p50": 8,
+    "d_det_max": 28,
+    "d_attr_p50": null,
+    "d_attr_max": null,
+    "receipt_backed_conviction": 0.0,
+    "retained_by_device": 0.0,
+    "det_within_thm3": 100.0,
+    "attr_within_thm3": null
+   },
+   "unwitnessed": {
+    "events": 7258,
+    "flagged-unattributed": 100.0,
+    "d_det_p50": null,
+    "d_det_max": null,
+    "d_attr_p50": null,
+    "d_attr_max": null,
+    "receipt_backed_conviction": 0.0,
+    "retained_by_device": 0.0
+   },
+   "dispute_txs_per_trial_p50": 1946,
+   "dispute_gas_per_trial_p50": 221741110,
+   "anchor_gas_per_trial_p50": 528934
+  },
+  "A9 [economy]": {
+   "trials": 52,
+   "gateway_convicted": 52,
+   "witnessed": {
+    "events": 55374,
+    "attributed": 11.72,
+    "flagged-unattributed": 88.28,
+    "d_det_p50": 79,
+    "d_det_max": 331,
+    "d_attr_p50": 382,
+    "d_attr_max": 634,
+    "receipt_backed_conviction": 100.0,
+    "retained_by_device": 0.0,
+    "det_within_thm3": 100.0,
+    "attr_within_thm3": 100.0
+   },
+   "unwitnessed": {
+    "events": 7258,
+    "flagged-unattributed": 100.0,
+    "d_det_p50": null,
+    "d_det_max": null,
+    "d_attr_p50": null,
+    "d_attr_max": null,
+    "receipt_backed_conviction": 100.0,
+    "retained_by_device": 0.0
+   },
+   "dispute_txs_per_trial_p50": 60,
+   "dispute_gas_per_trial_p50": 4442416,
+   "anchor_gas_per_trial_p50": 721266
+  },
+  "A9 [strict]": {
+   "trials": 52,
+   "gateway_convicted": 52,
+   "witnessed": {
+    "events": 55374,
+    "attributed": 100.0,
+    "d_det_p50": 322,
+    "d_det_max": 332,
+    "d_attr_p50": 625,
+    "d_attr_max": 636,
+    "receipt_backed_conviction": 100.0,
+    "retained_by_device": 0.0,
+    "det_within_thm3": 100.0,
+    "attr_within_thm3": 100.0
+   },
+   "unwitnessed": {
+    "events": 7258,
+    "flagged-unattributed": 100.0,
+    "d_det_p50": null,
+    "d_det_max": null,
+    "d_attr_p50": null,
+    "d_attr_max": null,
+    "receipt_backed_conviction": 100.0,
+    "retained_by_device": 0.0
+   },
+   "dispute_txs_per_trial_p50": 3651,
+   "dispute_gas_per_trial_p50": 274076065,
+   "anchor_gas_per_trial_p50": 721278
+  },
+  "honest [strict]": {
+   "trials": 52,
+   "gateway_convicted": 0,
+   "witnessed": {
+    "events": 55374,
+    "covered": 100.0,
+    "d_det_p50": 27,
+    "d_det_max": 301,
+    "d_attr_p50": null,
+    "d_attr_max": null,
+    "receipt_backed_conviction": 0.0,
+    "retained_by_device": 0.0,
+    "det_within_thm3": 100.0,
+    "attr_within_thm3": null
+   },
+   "unwitnessed": {
+    "events": 7258,
+    "covered": 100.0,
+    "d_det_p50": 29,
+    "d_det_max": 300,
+    "d_attr_p50": null,
+    "d_attr_max": null,
+    "receipt_backed_conviction": 0.0,
+    "retained_by_device": 0.0
+   },
+   "dispute_txs_per_trial_p50": 0,
+   "dispute_gas_per_trial_p50": 0,
+   "anchor_gas_per_trial_p50": 769340
+  },
+  "honest-partition [strict]": {
+   "trials": 52,
+   "gateway_convicted": 0,
+   "witnessed": {
+    "events": 55374,
+    "covered": 100.0,
+    "d_det_p50": 13,
+    "d_det_max": 309,
+    "d_attr_p50": null,
+    "d_attr_max": null,
+    "receipt_backed_conviction": 0.0,
+    "retained_by_device": 0.0,
+    "det_within_thm3": 100.0,
+    "attr_within_thm3": null
+   },
+   "unwitnessed": {
+    "events": 7258,
+    "covered": 100.0,
+    "d_det_p50": 73,
+    "d_det_max": 420,
+    "d_attr_p50": null,
+    "d_attr_max": null,
+    "receipt_backed_conviction": 0.0,
+    "retained_by_device": 0.0
+   },
+   "dispute_txs_per_trial_p50": 186,
+   "dispute_gas_per_trial_p50": 21208950,
+   "anchor_gas_per_trial_p50": 721254
+  }
+ },
+ "T2": {
+  "A1": {
+   "PROVE-CPS": {
+    "attributed": 88.41,
+    "flagged-unattributed": 11.59
+   },
+   "B1": {
+    "flagged-unattributed": 100.0
+   },
+   "B1+W": {
+    "flagged-unattributed": 100.0
+   },
+   "B2": {
+    "flagged-unattributed": 100.0
+   },
+   "B2+W": {
+    "flagged-unattributed": 100.0
+   },
+   "B3": {
+    "flagged-unattributed": 100.0
+   },
+   "B3+W": {
+    "flagged-unattributed": 100.0
+   },
+   "B4": {
+    "flagged-unattributed": 100.0
+   },
+   "B4+W": {
+    "flagged-unattributed": 100.0
+   },
+   "B5": {
+    "flagged-unattributed": 100.0
+   },
+   "B5+W": {
+    "flagged-unattributed": 100.0
+   },
+   "B6-isolated": {
+    "flagged-unattributed": 100.0
+   },
+   "B6+W": {
+    "attributed": 88.41,
+    "flagged-unattributed": 11.59
+   }
+  },
+  "A3": {
+   "PROVE-CPS": {
+    "attributed": 88.41,
+    "flagged-unattributed": 11.59
+   },
+   "B1": {
+    "flagged-unattributed": 100.0
+   },
+   "B1+W": {
+    "flagged-unattributed": 100.0
+   },
+   "B2": {
+    "flagged-unattributed": 100.0
+   },
+   "B2+W": {
+    "flagged-unattributed": 100.0
+   },
+   "B3": {
+    "flagged-unattributed": 100.0
+   },
+   "B3+W": {
+    "flagged-unattributed": 100.0
+   },
+   "B4": {
+    "flagged-unattributed": 100.0
+   },
+   "B4+W": {
+    "flagged-unattributed": 100.0
+   },
+   "B5": {
+    "flagged-unattributed": 100.0
+   },
+   "B5+W": {
+    "flagged-unattributed": 100.0
+   },
+   "B6-isolated": {
+    "flagged-unattributed": 100.0
+   },
+   "B6+W": {
+    "flagged-unattributed": 100.0
+   }
+  },
+  "A7": {
+   "PROVE-CPS": {
+    "attributed": 88.41,
+    "flagged-unattributed": 11.59
+   },
+   "B1": {
+    "flagged-unattributed": 100.0
+   },
+   "B1+W": {
+    "flagged-unattributed": 100.0
+   },
+   "B2": {
+    "flagged-unattributed": 100.0
+   },
+   "B2+W": {
+    "flagged-unattributed": 100.0
+   },
+   "B3": {
+    "flagged-unattributed": 100.0
+   },
+   "B3+W": {
+    "flagged-unattributed": 100.0
+   },
+   "B4": {
+    "flagged-unattributed": 100.0
+   },
+   "B4+W": {
+    "flagged-unattributed": 100.0
+   },
+   "B5": {
+    "flagged-unattributed": 100.0
+   },
+   "B5+W": {
+    "flagged-unattributed": 100.0
+   },
+   "B6-isolated": {
+    "flagged-unattributed": 100.0
+   },
+   "B6+W": {
+    "flagged-unattributed": 100.0
+   }
+  },
+  "A8": {
+   "PROVE-CPS": {
+    "covered": 57.59,
+    "attributed": 30.83,
+    "flagged-unattributed": 11.59
+   },
+   "B1": {
+    "flagged-unattributed": 100.0
+   },
+   "B1+W": {
+    "flagged-unattributed": 100.0
+   },
+   "B2": {
+    "flagged-unattributed": 100.0
+   },
+   "B2+W": {
+    "flagged-unattributed": 100.0
+   },
+   "B3": {
+    "flagged-unattributed": 100.0
+   },
+   "B3+W": {
+    "flagged-unattributed": 100.0
+   },
+   "B4": {
+    "flagged-unattributed": 100.0
+   },
+   "B4+W": {
+    "flagged-unattributed": 100.0
+   },
+   "B5": {
+    "flagged-unattributed": 100.0
+   },
+   "B5+W": {
+    "flagged-unattributed": 100.0
+   },
+   "B6-isolated": {
+    "flagged-unattributed": 100.0
+   },
+   "B6+W": {
+    "flagged-unattributed": 100.0
+   }
+  },
+  "A8-v1": {
+   "PROVE-CPS": {
+    "covered": 75.94,
+    "flagged-unattributed": 11.59,
+    "payload-lost": 12.47
+   },
+   "B1": {
+    "flagged-unattributed": 100.0
+   },
+   "B1+W": {
+    "flagged-unattributed": 100.0
+   },
+   "B2": {
+    "flagged-unattributed": 100.0
+   },
+   "B2+W": {
+    "flagged-unattributed": 100.0
+   },
+   "B3": {
+    "flagged-unattributed": 100.0
+   },
+   "B3+W": {
+    "flagged-unattributed": 100.0
+   },
+   "B4": {
+    "flagged-unattributed": 100.0
+   },
+   "B4+W": {
+    "flagged-unattributed": 100.0
+   },
+   "B5": {
+    "flagged-unattributed": 100.0
+   },
+   "B5+W": {
+    "flagged-unattributed": 100.0
+   },
+   "B6-isolated": {
+    "flagged-unattributed": 100.0
+   },
+   "B6+W": {
+    "flagged-unattributed": 100.0
+   }
+  },
+  "A9": {
+   "PROVE-CPS": {
+    "attributed": 88.41,
+    "flagged-unattributed": 11.59
+   },
+   "B1": {
+    "flagged-unattributed": 100.0
+   },
+   "B1+W": {
+    "flagged-unattributed": 100.0
+   },
+   "B2": {
+    "flagged-unattributed": 100.0
+   },
+   "B2+W": {
+    "flagged-unattributed": 100.0
+   },
+   "B3": {
+    "flagged-unattributed": 100.0
+   },
+   "B3+W": {
+    "flagged-unattributed": 100.0
+   },
+   "B4": {
+    "flagged-unattributed": 100.0
+   },
+   "B4+W": {
+    "flagged-unattributed": 100.0
+   },
+   "B5": {
+    "flagged-unattributed": 100.0
+   },
+   "B5+W": {
+    "flagged-unattributed": 100.0
+   },
+   "B6-isolated": {
+    "flagged-unattributed": 100.0
+   },
+   "B6+W": {
+    "attributed": 88.41,
+    "flagged-unattributed": 11.59
+   }
+  },
+  "A1-unw": {
+   "PROVE-CPS": {
+    "flagged-unattributed": 100.0
+   },
+   "B1": {
+    "flagged-unattributed": 100.0
+   },
+   "B1+W": {
+    "flagged-unattributed": 100.0
+   },
+   "B2": {
+    "flagged-unattributed": 100.0
+   },
+   "B2+W": {
+    "flagged-unattributed": 100.0
+   },
+   "B3": {
+    "flagged-unattributed": 100.0
+   },
+   "B3+W": {
+    "flagged-unattributed": 100.0
+   },
+   "B4": {
+    "flagged-unattributed": 100.0
+   },
+   "B4+W": {
+    "flagged-unattributed": 100.0
+   },
+   "B5": {
+    "flagged-unattributed": 100.0
+   },
+   "B5+W": {
+    "flagged-unattributed": 100.0
+   },
+   "B6-isolated": {
+    "flagged-unattributed": 100.0
+   },
+   "B6+W": {
+    "flagged-unattributed": 100.0
+   }
+  },
+  "A3-unw": {
+   "PROVE-CPS": {
+    "flagged-unattributed": 100.0
+   },
+   "B1": {
+    "flagged-unattributed": 100.0
+   },
+   "B1+W": {
+    "flagged-unattributed": 100.0
+   },
+   "B2": {
+    "flagged-unattributed": 100.0
+   },
+   "B2+W": {
+    "flagged-unattributed": 100.0
+   },
+   "B3": {
+    "flagged-unattributed": 100.0
+   },
+   "B3+W": {
+    "flagged-unattributed": 100.0
+   },
+   "B4": {
+    "flagged-unattributed": 100.0
+   },
+   "B4+W": {
+    "flagged-unattributed": 100.0
+   },
+   "B5": {
+    "flagged-unattributed": 100.0
+   },
+   "B5+W": {
+    "flagged-unattributed": 100.0
+   },
+   "B6-isolated": {
+    "flagged-unattributed": 100.0
+   },
+   "B6+W": {
+    "flagged-unattributed": 100.0
+   }
+  },
+  "A2": {
+   "PROVE-CPS": {
+    "covered": 85.97,
+    "attributed": 12.47,
+    "payload-lost": 1.56
+   },
+   "B1": {
+    "undetected": 51.84,
+    "flagged-unattributed": 48.16
+   },
+   "B1+W": {
+    "undetected": 51.84,
+    "flagged-unattributed": 48.16
+   },
+   "B2": {
+    "undetected": 51.84,
+    "flagged-unattributed": 48.16
+   },
+   "B2+W": {
+    "undetected": 51.84,
+    "flagged-unattributed": 48.16
+   },
+   "B3": {
+    "undetected": 51.84,
+    "flagged-unattributed": 48.16
+   },
+   "B3+W": {
+    "undetected": 51.84,
+    "flagged-unattributed": 48.16
+   },
+   "B4": {
+    "undetected": 51.84,
+    "flagged-unattributed": 48.16
+   },
+   "B4+W": {
+    "undetected": 51.84,
+    "flagged-unattributed": 48.16
+   },
+   "B5": {
+    "covered": 100.0
+   },
+   "B5+W": {
+    "covered": 100.0
+   },
+   "B6-isolated": {
+    "covered": 100.0
+   },
+   "B6+W": {
+    "covered": 100.0
+   }
+  },
+  "A5": {
+   "PROVE-CPS": {
+    "attributed": 100.0
+   },
+   "B1": {
+    "n/a": 100.0
+   },
+   "B1+W": {
+    "n/a": 100.0
+   },
+   "B2": {
+    "n/a": 100.0
+   },
+   "B2+W": {
+    "n/a": 100.0
+   },
+   "B3": {
+    "n/a": 100.0
+   },
+   "B3+W": {
+    "n/a": 100.0
+   },
+   "B4": {
+    "n/a": 100.0
+   },
+   "B4+W": {
+    "n/a": 100.0
+   },
+   "B5": {
+    "n/a": 100.0
+   },
+   "B5+W": {
+    "n/a": 100.0
+   },
+   "B6-isolated": {
+    "n/a": 100.0
+   },
+   "B6+W": {
+    "attributed": 100.0
+   }
+  },
+  "A4": {
+   "PROVE-CPS": {
+    "attributed": 88.91,
+    "payload-lost": 11.09
+   },
+   "B1": {
+    "undetected": 100.0
+   },
+   "B1+W": {
+    "undetected": 100.0
+   },
+   "B2": {
+    "undetected": 100.0
+   },
+   "B2+W": {
+    "undetected": 100.0
+   },
+   "B3": {
+    "undetected": 100.0
+   },
+   "B3+W": {
+    "undetected": 100.0
+   },
+   "B4": {
+    "undetected": 100.0
+   },
+   "B4+W": {
+    "undetected": 100.0
+   },
+   "B5": {
+    "covered": 100.0
+   },
+   "B5+W": {
+    "covered": 100.0
+   },
+   "B6-isolated": {
+    "covered": 100.0
+   },
+   "B6+W": {
+    "covered": 100.0
+   }
+  },
+  "A4-unw": {
+   "PROVE-CPS": {
+    "payload-lost": 100.0
+   },
+   "B1": {
+    "undetected": 100.0
+   },
+   "B1+W": {
+    "undetected": 100.0
+   },
+   "B2": {
+    "undetected": 100.0
+   },
+   "B2+W": {
+    "undetected": 100.0
+   },
+   "B3": {
+    "undetected": 100.0
+   },
+   "B3+W": {
+    "undetected": 100.0
+   },
+   "B4": {
+    "undetected": 100.0
+   },
+   "B4+W": {
+    "undetected": 100.0
+   },
+   "B5": {
+    "covered": 100.0
+   },
+   "B5+W": {
+    "covered": 100.0
+   },
+   "B6-isolated": {
+    "covered": 100.0
+   },
+   "B6+W": {
+    "covered": 100.0
+   }
+  },
+  "A6": {
+   "PROVE-CPS": {
+    "late": 55.38,
+    "covered": 44.62
+   },
+   "B1": {
+    "undetected": 100.0
+   },
+   "B1+W": {
+    "undetected": 100.0
+   },
+   "B2": {
+    "undetected": 100.0
+   },
+   "B2+W": {
+    "undetected": 100.0
+   },
+   "B3": {
+    "undetected": 100.0
+   },
+   "B3+W": {
+    "undetected": 100.0
+   },
+   "B4": {
+    "undetected": 100.0
+   },
+   "B4+W": {
+    "undetected": 100.0
+   },
+   "B5": {
+    "undetected": 100.0
+   },
+   "B5+W": {
+    "undetected": 100.0
+   },
+   "B6-isolated": {
+    "undetected": 100.0
+   },
+   "B6+W": {
+    "late": 88.41,
+    "undetected": 11.59
+   }
+  }
+ },
+ "T3": {
+  "honest_trials": 104,
+  "honest_convictions": 0,
+  "honest_resolutions": {
+   "dismissed": 10020,
+   "late": 841,
+   "convicted": 0
+  },
+  "honest_notices": 9138
+ }
+}

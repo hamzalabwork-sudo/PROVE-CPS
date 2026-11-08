@@ -1,0 +1,18 @@
+chain 20271 via http://localhost:8545 from DESKTOP-PV6QPJV
+  first tx: 1302.6 ms (phase=first, chain idle 0.9 s before)
+  warm n=2000: p50=1849 ms  p95=1996 ms  p99=2613 ms  max=30617 ms
+  receipt->block visible: max=50028 ms, nonzero in 1871/2001 txs
+  rpc rtt p50=50 ms; gas/anchor=47825
+chain 20271 via http://localhost:8545 from DESKTOP-PV6QPJV
+  first tx: 298.9 ms (phase=first, chain idle 1.8 s before)
+  warm n=1000: p50=1842 ms  p95=1953 ms  p99=2104 ms  max=20596 ms
+  receipt->block visible: max=20052 ms, nonzero in 900/1001 txs
+  rpc rtt p50=50 ms; gas/anchor=47825
+besu-node4
+chain 20271 via http://localhost:8545 from DESKTOP-PV6QPJV
+  first tx: 783.8 ms (phase=first, chain idle 1.2 s before)
+  warm n=1000: p50=1879 ms  p95=5901 ms  p99=5942 ms  max=15688 ms
+  receipt->block visible: max=29997 ms, nonzero in 968/1001 txs
+  rpc rtt p50=48 ms; gas/anchor=47825
+besu-node4
+CAMPAIGN_DONE

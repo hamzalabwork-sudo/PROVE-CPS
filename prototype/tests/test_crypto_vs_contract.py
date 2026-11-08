@@ -48,36 +48,69 @@ def main():
 
     # 3. Merkle proofs + device signatures + chain links, through a real dispute, at every leaf position
     #    of trees with 1..7 leaves (covers the odd-node promotion rule)
-    head, heads, hashes = crypto.ZERO32, {}, {}
-    for c in range(1, 8):
-        eh = crypto.event_hash(9, c, 1000 + c, [c], keccak(b"p%d" % c))
-        head = crypto.chain_step(head, eh)
-        heads[c], hashes[c] = head, eh
+    #    Each case uses a fresh device: v2 rejects a replayed challenge below the proven frontier (AlreadyCovered).
+    case = 0
     for n in range(1, 8):
         for idx in range(n):
+            case += 1
+            dv = 100 + case
+            led.setup_tx(admin.address, "registerDevice", dv, dev.address, gw.address)
+            head, heads, hashes = crypto.ZERO32, {}, {}
+            for k in range(1, 8):
+                eh = crypto.event_hash(dv, k, 1000 + k, [k], keccak(b"p%d" % k))
+                head = crypto.chain_step(head, eh)
+                heads[k], hashes[k] = head, eh
             c = idx + 1                      # leaf idx carries the device head at counter c
-            leaves_spec = [(9, k + 1, heads[k + 1]) if k == idx else (rng.getrandbits(64), k, rng.randbytes(32))
+            leaves_spec = [(dv, k + 1, heads[k + 1]) if k == idx else (rng.getrandbits(64), k, rng.randbytes(32))
                            for k in range(n)]
             tree = crypto.MerkleTree([crypto.leaf(*s) for s in leaves_spec])
-            assert crypto.verify_proof(tree.proof(idx), tree.root, crypto.leaf(9, c, heads[c]))
+            assert crypto.verify_proof(tree.proof(idx), tree.root, crypto.leaf(dv, c, heads[c]))
             led.setup_tx(gw.address, "anchor", tree.root)
             deadline = chain.last_ts + 1     # anchored at or before the deadline -> Dismissed, not Late
-            r = (9, 1, heads[1], deadline)
+            r = (dv, 1, heads[1], deadline)
             rsig = gw.sign(crypto.receipt_digest(dom, *r))
             chain.mine(deadline + 1)         # deadline passes
-            rc = led.setup_tx(admin.address, "challengeCustody", r, rsig)
+            led.setup_tx(admin.address, "challengeCustody", r, rsig)
             ch = led.view("challengeCount")
-            devsig = dev.sign(crypto.checkpoint_digest(dom, 9, c, heads[c]))
+            devsig = dev.sign(crypto.checkpoint_digest(dom, dv, c, heads[c]))
             later = [hashes[k] for k in range(2, c + 1)]
             led.setup_tx(admin.address, "respondCoverage", ch, (tree.root, c, heads[c], devsig, tree.proof(idx)), later)
             assert led.view("challenges", ch)[1] == 2, f"n={n} idx={idx}: expected Dismissed"
             checks += 1
+        # the replay of the last case's receipt is now rejected on-chain
+    try:
+        led.setup_tx(admin.address, "challengeCustody", r, rsig)
+        raise AssertionError("replayed custody challenge was accepted")
+    except AssertionError as e:
+        assert "setup challengeCustody failed" in str(e), e
+    checks += 1
+
+    # 3b. one-transaction answer (anchorAndRespond) to a NOTICE-FULL, with a one-leaf batch whose proof is empty
+    dv = 999
+    led.setup_tx(admin.address, "registerDevice", dv, dev.address, gw.address)
+    pre_policy = (chain.last_ts + 1, [Rule(0, Op.GE, 1050)])
+    led.setup_tx(admin.address, "setPolicy", [r.as_tuple() for r in pre_policy[1]], pre_policy[0])
+    payload = b"alarm-payload"
+    hdrs, head, heads = [], crypto.ZERO32, {0: crypto.ZERO32}
+    for k, f0 in ((1, 10), (2, 1200), (3, 20)):   # event 2 is FULL under the policy
+        hdr = (dv, k, chain.last_ts + 5, [f0], keccak(payload if k == 2 else b"d%d" % k))
+        head = crypto.chain_step(head, crypto.event_hash(*hdr))
+        hdrs.append(hdr)
+        heads[k] = head
+    cpsig = dev.sign(crypto.checkpoint_digest(dom, dv, 3, heads[3]))
+    led.setup_tx(admin.address, "noticeFull", (dv, 3, heads[3]), cpsig, heads[1], hdrs[1], [crypto.event_hash(*hdrs[2])])
+    ch = led.view("challengeCount")
+    root = crypto.leaf(dv, 3, heads[3])
+    led.setup_tx(gw.address, "anchorAndRespond", ch, (root, 3, heads[3], cpsig, []), [], payload)
+    assert led.view("challenges", ch)[1] == 2, "NOTICE-FULL answered in one tx: expected Dismissed"
+    checks += 1
 
     # 4. policy evaluation: requiresFull vs Policy.requires_full, including version selection by timestamp
     rules_v0 = [Rule(0, Op.GE, 1050), Rule(0, Op.LE, -50), Rule(1, Op.GE, 200)]
     rules_v1 = [Rule(2, Op.EQ, 1), Rule(0, Op.NE, 500)]
     t0 = chain.last_ts + 10
     pol = Policy()
+    pol.add(*pre_policy)
     for t, rules in ((t0, rules_v0), (t0 + 100, rules_v1)):
         led.setup_tx(admin.address, "setPolicy", [r.as_tuple() for r in rules], t)
         pol.add(t, rules)

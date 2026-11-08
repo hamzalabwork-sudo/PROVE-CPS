@@ -1,9 +1,13 @@
 """Witness and auditor (design doc 6.3).
 
 The witness receives device checkpoints over a path that avoids the gateway and turns them into on-chain
-disputes: CUSTODY (receipted, not covered by the deadline), NOTICE (never receipted), AVAILABILITY (FULL payload
-missing), EQUIVOCATION (two gateway receipts disagree). It finalizes its own challenges when the response
-window closes.
+disputes: CUSTODY (receipted, not covered by the deadline), NOTICE (never receipted), NOTICE-FULL (never receipted
+and FULL: the payload is owed too), AVAILABILITY (FULL payload missing after custody), EQUIVOCATION (two gateway
+receipts disagree). It finalizes its own challenges when the response window closes.
+
+Second path (v2): the device also sends every FULL payload to its witness, which keeps a copy in the replicated
+evidence store. A gateway that never received a FULL event (an outage) can therefore always answer a NOTICE-FULL,
+so the payload obligation cannot frame it; a gateway that refuses custody cannot keep the payload off the ledger.
 
 Two dispute policies (both measured in the evaluation):
   strict   one dispute per overdue latest receipt per checkpoint period. Every suppressed event is named by a
@@ -22,21 +26,25 @@ OPEN, DISMISSED, LATE, CONVICTED = 1, 2, 3, 4
 
 
 class Witness:
-    def __init__(self, sim, port, domain, device_keys, gateway_of, store, grace=1, notice_after=15, economy=False):
+    def __init__(self, sim, port, domain, device_keys, gateway_of, store, grace=1, notice_after=15, economy=False,
+                 notice_full=True, bond=0):
         self.sim, self.port, self.domain = sim, port, domain
         self.economy = economy
+        self.notice_full = notice_full  # v2; False reproduces v1 (ablation: plain NOTICE only, no second path)
+        self.bond = bond                # deposit the registry requires with every challenge
         self.device_keys, self.gateway_of, self.store = device_keys, gateway_of, store
         self.grace, self.notice_after = grace, notice_after
         self.window = port.view("responseWindow")
         self.receipts = {}         # (gateway, dev, counter) -> Receipt seen from the device
         self.custody_checks = set()
         self.noticed = {}          # dev -> highest counter noticed
+        self.noticed_full = set()  # (dev, counter) of FULL events already named by a NOTICE-FULL
         self.open = {}             # dev -> challenge id (or "pending" while the challenge tx is in flight)
         self.deferred = {}         # dev -> newest receipt that became overdue while a dispute was open
         self.convicted = set()     # gateways with a conviction on the ledger
         self.proved = set()        # gateways we already submitted an equivocation proof against
         self.challenges = {}       # id -> (kind, dev, counter, opened_ts)
-        self.stats = {"checkpoints": 0, "custody": 0, "notice": 0, "availability": 0, "equivocation": 0,
+        self.stats = {"checkpoints": 0, "custody": 0, "notice": 0, "notice_full": 0, "availability": 0, "equivocation": 0,
                       "finalize": 0, "invalid": 0}
         port.subscribe(self._on_ledger)
 
@@ -59,6 +67,16 @@ class Witness:
             if self._gateway_signed(gw, e.receipt):
                 self._watch_custody(gw, e.receipt)
                 self.sim.at(e.receipt.deadline + self.grace, self._check_availability, gw, e)
+        if self.notice_full:
+            for ph, payload in cp.payloads:
+                self.store.witness_payloads[ph] = payload
+            for e in cp.full_pending:
+                key = (dev, e.header.counter)
+                if key in self.noticed_full or (self.economy and gw in self.convicted):
+                    continue
+                self.noticed_full.add(key)
+                self.noticed[dev] = max(self.noticed.get(dev, 0), h.counter)  # it also obliges coverage of h
+                self._open("noticeFull", (h.abi(), h.sig, e.prev_head, e.header.abi(), list(e.later)), dev, h.counter)
         oldest = cp.oldest_unreceipted_ts
         if (oldest is not None and self.sim.now - oldest >= self.notice_after and h.counter > self.noticed.get(dev, 0)
                 and not self._quiet(dev, gw)):
@@ -122,9 +140,10 @@ class Witness:
     # ------------------------------------------------------------------ challenge lifecycle
 
     def _open(self, fn, args, dev, counter):
-        kind = {"challengeCustody": "custody", "notice": "notice", "challengeAvailability": "availability"}[fn]
+        kind = {"challengeCustody": "custody", "notice": "notice", "noticeFull": "notice_full",
+                "challengeAvailability": "availability"}[fn]
         self.stats[kind] += 1
-        exclusive = self.economy and kind != "availability"
+        exclusive = self.economy and kind in ("custody", "notice")  # a payload obligation is per event
         if exclusive:
             self.open[dev] = "pending"
 
@@ -139,7 +158,7 @@ class Witness:
                 self.open[dev] = cid
             self.sim.at(ts + self.window + 1, self._finalize, cid)
 
-        self.port.submit(fn, args, opened)
+        self.port.submit(fn, args, opened, self.bond)
 
     def _finalize(self, cid):
         if self.port.ledger.status.get(cid) == OPEN:
@@ -183,4 +202,43 @@ class Auditor:
                 self.history.append([dev, now, None])
             elif not stalled and dev in self.alarms:
                 self.history[self.alarms.pop(dev)][2] = now
+        self.sim.after(self.period, self._tick)
+
+
+class GriefWitness:
+    """A corrupt witness that floods the registry against an HONEST gateway: every `period` seconds it replays
+    challenges built from genuine evidence it legitimately holds (the receipts and signed heads in the checkpoints
+    it receives): CUSTODY on each device's newest overdue receipt and NOTICE on its newest signed head. Each one is
+    valid on its face, so only the registry's defences limit the damage: the bond, and the proven frontier, which
+    rejects any challenge below a head already proven covered (AlreadyCovered)."""
+
+    def __init__(self, sim, port, devices, bond, period=10.0):
+        self.sim, self.port, self.devices, self.bond, self.period = sim, port, list(devices), bond, period
+        self.heads, self.receipts = {}, {}   # dev -> newest SignedHead / newest Receipt seen in checkpoints
+        self.stats = {"sent": 0, "opened": 0, "rejected": 0}
+        sim.after(period, self._tick)
+
+    def on_checkpoint(self, cp):
+        dev = cp.head.device_id
+        self.heads[dev] = cp.head
+        if cp.receipt is not None:
+            self.receipts[dev] = cp.receipt
+
+    def _send(self, fn, args):
+        self.stats["sent"] += 1
+
+        def done(ok, evs, ts):
+            self.stats["opened" if ok else "rejected"] += 1
+
+        self.port.submit(fn, args, done, self.bond)
+
+    def _tick(self):
+        now = self.sim.now
+        for dev in self.devices:
+            r = self.receipts.get(dev)
+            if r is not None and r.deadline < now - 1:
+                self._send("challengeCustody", (r.abi(), r.sig))
+            h = self.heads.get(dev)
+            if h is not None:
+                self._send("notice", (h.abi(), h.sig))
         self.sim.after(self.period, self._tick)

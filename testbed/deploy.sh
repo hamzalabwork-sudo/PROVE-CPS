@@ -21,7 +21,7 @@ foundry() {
 send() { foundry cast send --legacy --gas-price 0 --rpc-url "$RPC" "$@"; }
 
 ADDR=$(foundry forge create src/Registry.sol:Registry --legacy --gas-price 0 --broadcast \
-  --rpc-url "$RPC" --private-key "$ADMIN_KEY" --constructor-args "$RESPONSE_WINDOW" \
+  --rpc-url "$RPC" --private-key "$ADMIN_KEY" --constructor-args "$RESPONSE_WINDOW" "${CHALLENGE_BOND:-0}" \
   | awk '/Deployed to:/ {print $3}')
 [[ -n "$ADDR" ]] || { echo "deployment failed" >&2; exit 1; }
 echo "Registry deployed at $ADDR"

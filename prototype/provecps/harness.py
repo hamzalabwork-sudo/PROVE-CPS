@@ -12,15 +12,16 @@ from dataclasses import asdict, dataclass, field
 
 from . import crypto, hai
 from .device import Device
-from .gateway import Delay, Disguise, Equivocate, Gateway, Honest, MidStreamDrop, Stonewall, TailTruncation
+from .gateway import (Delay, Disguise, Equivocate, Gateway, Honest, MidStreamDrop, RefuseCustody, SlowWalk,
+                      Stonewall, TailTruncation)
 from .ledger import ROOT, Anvil, LedgerPort, SimLedger, empirical_delays
 from .policy import Policy
 from .sim import Link, Outages, Sim
 from .store import EvidenceStore
-from .witness import Auditor, Witness
+from .witness import Auditor, GriefWitness, Witness
 
 PURECHAIN_CSV = ROOT / "experiments/results/inclusion_latency_purechain_s28.csv"
-KIND = {0: "custody", 1: "notice", 2: "availability"}
+KIND = {0: "custody", 1: "notice", 2: "availability", 3: "notice_full"}
 STATUS = {2: "dismissed", 3: "late", 4: "convicted"}
 
 
@@ -38,11 +39,15 @@ class Params:
     d_gw: float = 0.005         # device <-> gateway one-way delay (plant LAN)
     d_wit: float = 0.05         # device -> witness one-way delay (T_w without outages)
     grace: int = 1
+    sigma: int = 5              # device clock tolerance on receipt deadlines (s)
     warmup: int = 600
     tail: int = 900
     O: int = 120                # partition length for A7 and its honest control (<= O_g)
     delay_extra: int = 60       # A6: how long after the deadline the attacker anchors
     economy: bool = False       # witness dispute policy: strict (per-event Def 3) or economy (per-gateway)
+    notice_full: bool = True    # v2 NOTICE-FULL + second payload path; False = v1 (ablation)
+    bond: int = 0               # challenge bond (wei); the griefing experiment sets it
+    grief_period: float = 10.0  # griefing witness: replay period (s)
     seed: int = 0
 
 
@@ -66,7 +71,11 @@ def strategies(P, targets, a0, a1, unwitnessed=frozenset()):
         "A5": (Equivocate(targets, a0, a1), False, targets),
         "A6": (Delay(targets, a0, a1, P.delay_extra), False, targets),
         "A7": (Stonewall(targets, a0), True, targets),          # stonewall timed to a real partition
+        "A8": (RefuseCustody(targets, a0), False, targets),     # refuse custody, answer plain notices
+        "A8-v1": (RefuseCustody(targets, a0), False, targets),  # ablation: the same attack against v1 (no NOTICE-FULL)
+        "A9": (SlowWalk(targets, a0, P.notice_after - 1, P.sigma - 1), False, targets),  # worst case for Theorem 2
         "honest-partition": (Honest(), True, targets),          # same partition, honest gateway
+        "honest-grief": (Honest(), False, targets),             # honest gateway vs. a challenge-flooding witness
         # Theorem 1: an attacker who knows the witness topology suppresses only devices without a witness.
         "A1-unw": (TailTruncation(unwitnessed, a0), False, unwitnessed),
         "A3-unw": (Stonewall(unwitnessed, a0), False, unwitnessed),
@@ -80,7 +89,7 @@ def run_trial(rep, attack_idx, strat_name, P: Params, chain: Anvil, delays):
     sim = Sim(chain.last_ts)
     led = SimLedger(sim, chain, delays, seed=P.seed * 1000 + attack_idx)
     admin, gws, wit = signer("admin"), signer("gateway"), signer("witness")
-    reg = led.deploy(admin.address, P.W)
+    reg = led.deploy(admin.address, P.W, P.bond)
     dom = crypto.domain_separator(chain.w3.eth.chain_id, reg)
     led.setup_tx(admin.address, "registerGateway", gws.address)
     devices_ids = list(range(1, len(rep.tags) + 1))
@@ -105,9 +114,15 @@ def run_trial(rep, attack_idx, strat_name, P: Params, chain: Anvil, delays):
     gw = Gateway(sim, gws, LedgerPort(led, gws.address, outs), dom, policy, keys, store,
                  P.tau_full, P.tau_digest, P.safety, P.reserve, strategy)
     witness = Witness(sim, LedgerPort(led, wit.address), dom, keys, {i: gws.address for i in devices_ids},
-                      store, P.grace, P.notice_after, P.economy)
+                      store, P.grace, P.notice_after, P.economy, P.notice_full and not strat_name.endswith("-v1"),
+                      P.bond)
+    for a in (wit.address, signer("griefer").address):
+        chain.rpc("anvil_setBalance", [a, hex(10**30)])
+    griefer = (GriefWitness(sim, LedgerPort(led, signer("griefer").address), sorted(rep.witnessed), P.bond,
+                            P.grief_period) if strat_name == "honest-grief" else None)
     auditor = Auditor(sim, store, devices_ids, silence_after=P.heartbeat + P.tau_digest + 2 * P.safety + 30)
-    devs = {i: Device(i, signer(f"dev{i}"), gws.address, dom, policy, tau_max=P.tau_digest) for i in devices_ids}
+    devs = {i: Device(i, signer(f"dev{i}"), gws.address, dom, policy, tau_max=P.tau_digest, tau_full=P.tau_full, clock_slack=P.sigma,
+                      notice_after=int(P.notice_after)) for i in devices_ids}
     to_gw, to_dev, to_wit = Link(sim, P.d_gw, outs), Link(sim, P.d_gw, outs), Link(sim, P.d_wit)
     gen = {}        # (dev, counter) -> (ts, full)
     last_f0 = {}
@@ -115,7 +130,11 @@ def run_trial(rep, attack_idx, strat_name, P: Params, chain: Anvil, delays):
     def gw_recv(m):
         r = gw.on_event(m)
         if r is not None:
-            to_dev.send(dev_recv, r)
+            rel = gw.release_time(r)
+            if rel > sim.now:
+                sim.at(rel, to_dev.send, dev_recv, r)
+            else:
+                to_dev.send(dev_recv, r)
 
     def dev_recv(r):
         devs[r.device_id].on_receipt(r, sim.now)
@@ -123,7 +142,8 @@ def run_trial(rep, attack_idx, strat_name, P: Params, chain: Anvil, delays):
     def emit(dev, f, payload):
         d = devs[dev]
         m = d.emit(int(sim.now), f, payload)
-        gen[(dev, m.header.counter)] = (m.header.timestamp, policy.requires_full(f, m.header.timestamp))
+        gen[(dev, m.header.counter)] = (m.header.timestamp, policy.requires_full(f, m.header.timestamp),
+                                        m.header.payload_hash)
         last_f0[dev] = (f[0], sim.now)
         to_gw.send(gw_recv, m)
 
@@ -136,9 +156,11 @@ def run_trial(rep, attack_idx, strat_name, P: Params, chain: Anvil, delays):
 
     def checkpoints():
         for i in rep.witnessed:
-            cp = devs[i].checkpoint()
+            cp = devs[i].checkpoint(sim.now)
             if cp is not None:
                 to_wit.send(witness.on_checkpoint, cp)
+                if griefer is not None:
+                    to_wit.send(griefer.on_checkpoint, cp)
         sim.after(P.p, checkpoints)
 
     def heartbeats():           # after the replay ends, devices keep their integrity heartbeat
@@ -158,8 +180,22 @@ def run_trial(rep, attack_idx, strat_name, P: Params, chain: Anvil, delays):
     wall = time.perf_counter()
     sim.run(end)
     wall = time.perf_counter() - wall
-    return score(rep, strat_name, P, led, store, auditor, gen, targets, A0, A1, attack_idx, devs, gw, witness,
-                 delays, wall, partition)
+    res = score(rep, strat_name, P, led, store, auditor, gen, targets, A0, A1, attack_idx, devs, gw, witness,
+                delays, wall, partition)
+    if griefer is not None:
+        mine = [(fn, st, u) for _, snd, fn, _, st, u, _ in led.log if snd == gws.address and fn != "anchor"]
+        res["grief"] = {**griefer.stats, "gateway_credit_wei": led.view("credit", gws.address),
+                        "gateway_answers": sum(1 for _, st, _ in mine if st == 1),
+                        "gateway_answer_gas": sum(u for _, st, u in mine if st == 1)}
+    return res
+
+
+def theorem_bounds(P, full, dl_max):
+    """Theorem 2: Delta_d <= nu + p + tau_k + sigma + Delta_L + 3 and Delta_a <= Delta_d + W_resp + Delta_L + 2
+    (integer block timestamps: ceil of the deadline, the strict deadline comparison, ceil of inclusion)."""
+    tau = P.tau_full if full else P.tau_digest
+    d = P.notice_after + P.p + tau + P.sigma + dl_max + 3
+    return d, d + P.W + dl_max + 2
 
 
 def _suppressed(strat_name, gen, targets, A0, A1):
@@ -168,9 +204,9 @@ def _suppressed(strat_name, gen, targets, A0, A1):
     if strat_name == "A5":
         return []
     out = []
-    for (dev, c), (ts, full) in gen.items():
+    for (dev, c), (ts, full, ph) in gen.items():
         if dev in targets and A0 <= ts < A1 and (not strat_name.startswith("A4") or full):
-            out.append((dev, c, ts, full))
+            out.append((dev, c, ts, full, ph))
     return out
 
 
@@ -200,7 +236,7 @@ def score(rep, strat_name, P, led, store, auditor, gen, targets, A0, A1, attack_
 
     dl_max = max(delays)
     rows = []
-    for dev, c, ts, full in _suppressed(strat_name, gen, targets, A0, A1):
+    for dev, c, ts, full, ph in _suppressed(strat_name, gen, targets, A0, A1):
         tau = P.tau_full if full else P.tau_digest
         t_cov = min((t for cc, t in cov.get(dev, ()) if cc >= c), default=None)
         t_ch = t_conv = t_late = None
@@ -218,19 +254,22 @@ def score(rep, strat_name, P, led, store, auditor, gen, targets, A0, A1, attack_
         rc = devs[dev].receipt
         flagged = min((t for t in (t_ch, t_alarm) if t is not None), default=None)
         detected = min((t for t in (t_cov, t_ch) if t is not None), default=None)  # Definition 3 detection
-        outcome = ("attributed" if t_conv else "late" if t_late else "covered" if t_cov
+        # A FULL event counts as covered only if its payload reached the evidence store through the gateway's own
+        # obligations (custody replication or a published answer); a witness's copy does not discharge them.
+        payload_ok = (not full) or store.has_payload(ph)
+        outcome = ("attributed" if t_conv else "late" if t_late
+                   else ("covered" if payload_ok else "payload-lost") if t_cov
                    else "flagged-unattributed" if t_alarm else "undetected")
         d = lambda t: None if t is None else t - ts  # noqa: E731
         rows.append({
-            "dev": dev, "witnessed": dev in rep.witnessed, "full": full, "outcome": outcome,
+            "dev": dev, "witnessed": dev in rep.witnessed, "full": full, "outcome": outcome, "payload_ok": payload_ok,
             "receipted": rc is not None and rc.counter >= c,  # a gateway-signed custody receipt exists for e
             "d_det": d(detected), "d_flag": d(flagged), "d_ch": d(t_ch), "d_alarm": d(t_alarm),
             "d_attr": d(t_conv), "d_cov": d(t_cov),
-            # Theorem 3 achievability bound for this event, +2 s for integer ledger timestamps
-            "bound_d": P.p + P.d_wit + dl_max + max(tau, P.notice_after + P.theta) + P.grace + 2,
+            # Theorem 2 (achievability), exactly as stated: nu + p + tau_k + sigma + Delta_L + 3 s of rounding
+            "bound_d": theorem_bounds(P, full, dl_max)[0],
+            "bound_a": theorem_bounds(P, full, dl_max)[1],
         })
-        # Theorem 3 attribution: Delta_a <= Delta_d + W_resp + Delta_L (the finalize transaction), +1 s granularity
-        rows[-1]["bound_a"] = rows[-1]["bound_d"] + P.W + dl_max + 1
     gas = {}
     for ts, sender, fn, args, status, used, evs in led.log:
         g = gas.setdefault(fn, {"n": 0, "gas": 0, "reverted": 0})
@@ -241,6 +280,7 @@ def score(rep, strat_name, P, led, store, auditor, gen, targets, A0, A1, attack_
     return {
         "attack": attack_idx, "window_s": A1 - A0, "strategy": strat_name, "partition": partition,
         "params": asdict(P), "events": n_events, "suppressed": len(rows), "rows": rows,
+        "first_challenge_rel": (min(v[0] for v in opened.values()) - A0) if opened else None,
         "gateway_convicted": convicted_ts is not None, "convicted_at": None if convicted_ts is None else convicted_ts - A0,
         "equivocation_proofs": len(equivocation),
         "equivocation_at": min((e[0] for e in equivocation), default=A0 - 1) - A0 if equivocation else None,

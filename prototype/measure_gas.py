@@ -51,7 +51,7 @@ def main():
                       "first": gas[0]}
         print(f"{label:28s} {fn:12s} median={res[label]['median']:7d} min={min(steady)} max={max(steady)} first={gas[0]}")
 
-    run("PROVE-CPS Registry.anchor", deploy(chain, "Registry", admin, 300), "anchor",
+    run("PROVE-CPS Registry.anchor", deploy(chain, "Registry", admin, 300, 0), "anchor",
         lambda i: (keccak(b"root%d" % i),))
     run("B1 FullLog.logEvent", deploy(chain, "FullLog", admin), "logEvent",
         lambda i: (events[i][1], i + 1, 1_700_000_000 + events[i][0], list(events[i][2]), events[i][3]))

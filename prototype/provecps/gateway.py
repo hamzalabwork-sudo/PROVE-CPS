@@ -1,10 +1,14 @@
-"""Gateway agent (design doc 6.2) and the adversarial strategies A1-A7 (design doc 7).
+"""Gateway agent (design doc 6.2) and the adversarial strategies A1-A8 (design doc 7).
 
 The honest gateway: verify device signature and chain link, issue a receipt with a policy deadline, replicate
 FULL payloads, and anchor with the deadline-safe earliest-deadline stabbing rule (Prop 4): when the earliest
 pending deadline minus (safety + reserve) arrives, close one batch containing the latest head of every device
 with receipted-but-unanchored events. An attack is a Strategy that overrides individual decisions; everything
 else, including how the gateway answers challenges, is the same code.
+
+Disputes (v2): a challenge with no confirmed coverage is answered in ONE transaction, `anchorAndRespond`, over a
+single-leaf batch holding the challenged device-signed head; a NOTICE-FULL answer also carries the payload, taken
+from the gateway's custody or, for an event it never received, from the witness's copy in the evidence store.
 """
 import heapq
 import math
@@ -13,9 +17,9 @@ from collections import defaultdict
 from eth_hash.auto import keccak
 
 from . import crypto
-from .messages import Receipt, SignedHead
+from .messages import Receipt
 
-CUSTODY, NOTICE, AVAILABILITY = 0, 1, 2
+CUSTODY, NOTICE, AVAILABILITY, NOTICE_FULL = 0, 1, 2, 3
 
 
 # ====================================================================== strategies
@@ -40,6 +44,12 @@ class Honest:
 
     def published_receipt(self, r, msg, gw):  # the receipt it writes to the public custody log
         return r
+
+    def receipt_delay(self, msg, now):        # how long it withholds the receipt
+        return 0
+
+    def deadline_stretch(self, msg, now):     # seconds added to the policy deadline (devices tolerate sigma)
+        return 0
 
 
 class _Targeted(Honest):
@@ -76,6 +86,43 @@ class Stonewall(_Targeted):
 
     def drop(self, msg, now):
         return msg.header.device_id in self.targets and now >= self.t0
+
+    def answers(self, dev, kind):
+        return dev not in self.targets
+
+
+class RefuseCustody(_Targeted):
+    """A8: refuse custody of target devices (no receipt, hence no AVAILABILITY obligation) but answer every plain
+    NOTICE by anchoring the head the witness posted, so every event ends up covered while FULL payloads never
+    reach the evidence store. In v1 this suppression went unattributed; v2 answers it with NOTICE-FULL, which
+    this gateway cannot answer without publishing the payload it wants to hide."""
+    name = "A8-custody-refusal"
+
+    def drop(self, msg, now):
+        return msg.header.device_id in self.targets and now >= self.t0
+
+    def answers(self, dev, kind):
+        return not (dev in self.targets and kind == NOTICE_FULL)
+
+
+class SlowWalk(_Targeted):
+    """A9: the worst case for detection that Theorem 2 allows. Withhold each target receipt for just under the notice
+    threshold (so no NOTICE fires), stretch its deadline by the clock tolerance the device accepts, then never anchor
+    (truncation). Detection must then wait for the stretched deadline of a late receipt."""
+    name = "A9-slow-walk"
+
+    def __init__(self, targets, t0, hold, stretch):
+        super().__init__(targets, t0)
+        self.hold, self.stretch = hold, stretch
+
+    def receipt_delay(self, msg, now):
+        return self.hold if self._hit(msg.header.device_id, msg.header.timestamp) else 0
+
+    def deadline_stretch(self, msg, now):
+        return self.stretch if self._hit(msg.header.device_id, msg.header.timestamp) else 0
+
+    def cap(self, dev, st):
+        return st.last_before(self.t0) if dev in self.targets else None
 
     def answers(self, dev, kind):
         return dev not in self.targets
@@ -157,8 +204,8 @@ class Gateway:
         self.heap = []                       # (deadline, dev, counter) of receipted, unanchored heads
         self.fire_at = None
         self.coverage = defaultdict(list)    # dev -> [(counter, head, sig, root, proof)] confirmed on ledger
-        self.extra_leaves = {}               # dev -> SignedHead learned from an on-chain notice
-        self.waiting = []                    # challenges to answer once coverage lands: (id, dev, counter, head)
+        self.waiting = []                    # challenges to answer once coverage lands (see _respond)
+        self.release = {}                    # (dev, counter) -> time a withheld receipt is released (A9)
         self.stats = {"events": 0, "receipts": 0, "rejected": 0, "batches": 0, "leaves": 0, "responses": 0}
         port.subscribe(self._on_ledger)
 
@@ -185,7 +232,11 @@ class Gateway:
         st.custody[h.counter] = msg.payload if keep else None
         if full and keep:
             self.store.put_payload(h.payload_hash, msg.payload)
-        deadline = math.ceil(now) + (self.tau_full if full else self.tau_digest)
+        hold = self.strategy.receipt_delay(msg, now)
+        deadline = (math.ceil(now + hold) + (self.tau_full if full else self.tau_digest)
+                    + self.strategy.deadline_stretch(msg, now))
+        if hold:
+            self.release[(h.device_id, h.counter)] = now + hold
         st.deadline[h.counter] = deadline
         digest = crypto.receipt_digest(self.domain, h.device_id, h.counter, msg.head.head, deadline)
         r = Receipt(h.device_id, h.counter, msg.head.head, deadline, self.signer.sign(digest))
@@ -196,6 +247,10 @@ class Gateway:
         heapq.heappush(self.heap, (deadline, h.device_id, h.counter))
         self._schedule()
         return r
+
+    def release_time(self, r):
+        """When the receipt `r` may leave the gateway (a strategy may withhold it, also on retransmission)."""
+        return self.release.get((r.device_id, r.counter), -math.inf)
 
     def _valid(self, msg, st):
         h = msg.header
@@ -226,12 +281,8 @@ class Gateway:
         now = self.sim.now
         horizon = now + self.safety + self.reserve
         entries, held = [], {}
-        for dev in [d for d, st in self.dev.items() if st.anchored_req < st.last_counter] + list(self.extra_leaves):
+        for dev in [d for d, st in self.dev.items() if st.anchored_req < st.last_counter]:
             st = self.dev[dev]
-            if dev in self.extra_leaves:
-                sh = self.extra_leaves.pop(dev)
-                entries.append((dev, sh.counter, sh.head, sh.sig))
-                continue
             hold = self.strategy.hold_until(dev, st)
             if hold - self.safety > now:
                 held[dev] = hold
@@ -290,27 +341,68 @@ class Gateway:
                 self.stats["responses"] += 1
             return
         head = args[0][2]                    # challenged head, from the challenge transaction's calldata
-        if fn == "notice" and st.heads.get(counter) != head:
-            cp, sig = args                   # a head we never received: anchor the device-signed head itself
-            self.extra_leaves[dev] = SignedHead(cp[0], cp[1], cp[2], sig)
-        self.waiting.append((cid, dev, counter, head))
-        if not self._answer_waiting():
+        payload = b""
+        if kind == NOTICE_FULL:
+            payload = self._payload_for(dev, args[3])
+            if payload is None:
+                self.stats["unanswerable"] = self.stats.get("unanswerable", 0) + 1
+                return
+        if fn in ("notice", "noticeFull"):
+            sig = args[1]                    # the device-signed head is in the challenge itself
+        else:
+            sig = st.sigs.get(counter) if st.heads.get(counter) == head else None
+        item = (cid, kind, dev, counter, head, sig, payload)
+        if self._answer_from_coverage(item):
+            return
+        if sig is None or self.strategy.hold_until(dev, st) - self.safety > self.sim.now:
+            self.waiting.append(item)        # answered when the (strategy's) next batch lands
             self._fire(force=True)
+            return
+        self._anchor_and_respond(item)
+
+    def _payload_for(self, dev, header):
+        """Payload of the FULL event in a NOTICE-FULL: from custody if we hold it, else the witness's copy."""
+        ph = bytes(header[4])
+        p = self.dev[dev].custody.get(header[1])
+        if p is not None and keccak(p) == ph:
+            return p
+        return self.store.witness_payloads.get(ph)
+
+    def _anchor_and_respond(self, item):
+        cid, kind, dev, counter, head, sig, payload = item
+        root = crypto.leaf(dev, counter, head)   # a one-leaf batch: its root is the leaf, its proof is empty
+        self.stats["batches"] += 1
+        self.stats["leaves"] += 1
+        self.stats["responses"] += 1
+
+        def done(ok, evs, ts):
+            if not ok:
+                return
+            self.coverage[dev].append((counter, head, sig, root, []))
+            self.store.publish_manifest(self.address, root, ts, [(dev, counter, head, sig, [])])
+            if payload:
+                self.store.put_payload(keccak(payload), payload)   # now in calldata on the ledger
+
+        self.port.submit("anchorAndRespond", (cid, (root, counter, head, sig, []), [], payload), done)
+
+    def _answer_from_coverage(self, item):
+        cid, kind, dev, counter, head, sig, payload = item
+        cov = self._coverage_for(dev, counter, head)
+        if cov is None:
+            return False
+        (c, h, s, root, proof), later = cov
+        if kind == NOTICE_FULL:
+            def done(ok, evs, ts):
+                if ok:
+                    self.store.put_payload(keccak(payload), payload)
+            self.port.submit("respondNoticeFull", (cid, (root, c, h, s, proof), later, payload), done)
+        else:
+            self.port.submit("respondCoverage", (cid, (root, c, h, s, proof), later))
+        self.stats["responses"] += 1
+        return True
 
     def _answer_waiting(self):
-        answered_any = False
-        still = []
-        for cid, dev, counter, head in self.waiting:
-            cov = self._coverage_for(dev, counter, head)
-            if cov is None:
-                still.append((cid, dev, counter, head))
-                continue
-            (c, h, s, root, proof), later = cov
-            self.port.submit("respondCoverage", (cid, (root, c, h, s, proof), later))
-            self.stats["responses"] += 1
-            answered_any = True
-        self.waiting = still
-        return answered_any
+        self.waiting = [item for item in self.waiting if not self._answer_from_coverage(item)]
 
     def _coverage_for(self, dev, counter, head):
         st = self.dev[dev]

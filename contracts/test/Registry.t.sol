@@ -25,7 +25,7 @@ contract RegistryTest is Test {
 
     function setUp() public {
         gw = vm.addr(gwKey);
-        reg = new Registry(WINDOW);
+        reg = new Registry(WINDOW, 0);
         reg.registerGateway(gw);
         reg.registerDevice(DEV, vm.addr(devKey), gw);
         reg.registerDevice(OTHER_DEV, vm.addr(otherDevKey), gw);
@@ -76,17 +76,37 @@ contract RegistryTest is Test {
         return _sign(key, reg.checkpointDigest(Registry.Checkpoint(deviceId, c, head)));
     }
 
-    /// Anchors a 2-leaf batch {DEV at c, OTHER_DEV at 1} and returns DEV's coverage proof.
-    function _anchorBatch(uint64 c) internal returns (Registry.Coverage memory cov) {
+    /// Builds (without anchoring) a 2-leaf batch {DEV at c, OTHER_DEV at 1} and DEV's coverage proof.
+    function _batch(uint64 c) internal view returns (Registry.Coverage memory cov) {
         bytes32 otherHead = keccak256("other-device-head");
         bytes32 a = reg.leafOf(DEV, c, heads[c]);
         bytes32 b = reg.leafOf(OTHER_DEV, 1, otherHead);
         bytes32 root = a < b ? keccak256(abi.encode(a, b)) : keccak256(abi.encode(b, a));
-        vm.prank(gw);
-        reg.anchor(root);
         bytes32[] memory proof = new bytes32[](1);
         proof[0] = b;
         cov = Registry.Coverage(root, c, heads[c], _devSig(DEV, c, heads[c], devKey), proof);
+    }
+
+    /// Anchors the batch of `_batch(c)` and returns DEV's coverage proof.
+    function _anchorBatch(uint64 c) internal returns (Registry.Coverage memory cov) {
+        cov = _batch(c);
+        vm.prank(gw);
+        reg.anchor(cov.root);
+    }
+
+    function _payload(uint64 c) internal pure returns (bytes memory) {
+        return abi.encode("payload", c);
+    }
+
+    /// NOTICE-FULL for the alarm event `alarmAt`, naming the device head `c`.
+    function _noticeFull(uint64 alarmAt, uint64 c) internal returns (uint256) {
+        return reg.noticeFull(
+            Registry.Checkpoint(DEV, c, heads[c]),
+            _devSig(DEV, c, heads[c], devKey),
+            heads[alarmAt - 1],
+            evs[alarmAt - 1],
+            _slice(alarmAt, c)
+        );
     }
 
     function _status(uint256 id) internal view returns (Registry.Status s) {
@@ -273,7 +293,151 @@ contract RegistryTest is Test {
         reg.setPolicy(rules, 999);
     }
 
+    // ------------------- A8 custody refusal + answered notices (v2: NOTICE-FULL)
+
+    /// A8: the gateway never receipts the alarm, then answers the notice with coverage only.
+    /// Under NOTICE-FULL the payload is owed: coverage alone is rejected and the gateway is convicted.
+    function test_A8_NoticeFull_CoverageWithoutPayload_Convicted() public {
+        _makeChain(5, 3);
+        uint256 id = _noticeFull(3, 5);
+        Registry.Coverage memory cov = _anchorBatch(5);
+        vm.expectRevert(Registry.PayloadMismatch.selector);
+        reg.respondCoverage(id, cov, new bytes32[](0));
+        vm.warp(block.timestamp + WINDOW + 1);
+        reg.finalize(id);
+        assertTrue(reg.convicted(gw));
+    }
+
+    /// The honest answer: anchor and publish the payload in a single transaction.
+    function test_A8_NoticeFull_AnchorAndRespondWithPayload_Dismissed() public {
+        _makeChain(5, 3);
+        uint256 id = _noticeFull(3, 5);
+        Registry.Coverage memory cov = _batch(5); // not yet anchored
+        vm.prank(gw);
+        reg.anchorAndRespond(id, cov, new bytes32[](0), _payload(3));
+        assertEq(uint8(_status(id)), uint8(Registry.Status.Dismissed));
+        assertGt(reg.anchoredAt(gw, cov.root), 0);
+    }
+
+    function test_NoticeFull_DigestEvent_Reverts() public {
+        _makeChain(5, 3);
+        Registry.Checkpoint memory cp = Registry.Checkpoint(DEV, 5, heads[5]);
+        bytes memory sig = _devSig(DEV, 5, heads[5], devKey);
+        bytes32[] memory later = _slice(2, 5);
+        vm.expectRevert(Registry.NotRequired.selector);
+        reg.noticeFull(cp, sig, heads[1], evs[1], later);
+    }
+
+    function test_AnchorAndRespond_OnlyChallengedGateway() public {
+        _makeChain(4, 0);
+        uint256 id = reg.notice(Registry.Checkpoint(DEV, 4, heads[4]), _devSig(DEV, 4, heads[4], devKey));
+        Registry.Coverage memory cov = _batch(4);
+        vm.expectRevert(Registry.NotGateway.selector);
+        reg.anchorAndRespond(id, cov, new bytes32[](0), "");
+    }
+
+    function test_AnchorAndRespond_Notice_SingleTx_Dismissed() public {
+        _makeChain(4, 0);
+        uint256 id = reg.notice(Registry.Checkpoint(DEV, 4, heads[4]), _devSig(DEV, 4, heads[4], devKey));
+        Registry.Coverage memory cov = _batch(4);
+        vm.prank(gw);
+        reg.anchorAndRespond(id, cov, new bytes32[](0), "");
+        assertEq(uint8(_status(id)), uint8(Registry.Status.Dismissed));
+    }
+
+    // ------------------------------------------------------ griefing bounds
+
+    /// Once a head is proven covered, replayed notices and custody challenges below it are rejected.
+    function test_Replay_BelowProvenFrontier_Rejected() public {
+        _makeChain(6, 0);
+        (Registry.Receipt memory r, bytes memory rsig) = _receipt(3, uint64(block.timestamp + 10));
+        uint256 id = reg.notice(Registry.Checkpoint(DEV, 6, heads[6]), _devSig(DEV, 6, heads[6], devKey));
+        reg.respondCoverage(id, _anchorBatch(6), new bytes32[](0));
+        Registry.Checkpoint memory old = Registry.Checkpoint(DEV, 4, heads[4]);
+        bytes memory oldSig = _devSig(DEV, 4, heads[4], devKey);
+        vm.expectRevert(Registry.AlreadyCovered.selector);
+        reg.notice(old, oldSig);
+        vm.warp(r.deadline + 1);
+        vm.expectRevert(Registry.AlreadyCovered.selector);
+        reg.challengeCustody(r, rsig);
+    }
+
+    function test_Bond_SettlesToGatewayOrChallenger() public {
+        Registry bonded = new Registry(WINDOW, 1 ether);
+        bonded.registerGateway(gw);
+        bonded.registerDevice(DEV, vm.addr(devKey), gw);
+        reg = bonded; // helpers read through `reg`
+        _makeChain(4, 0);
+        address challenger = address(0xC0FFEE);
+        vm.deal(challenger, 2 ether);
+
+        Registry.Checkpoint memory cp = Registry.Checkpoint(DEV, 2, heads[2]);
+        bytes memory sig = _devSig(DEV, 2, heads[2], devKey);
+        vm.prank(challenger);
+        vm.expectRevert(Registry.BadBond.selector);
+        bonded.notice(cp, sig); // no deposit
+
+        // Dismissed: the bond compensates the gateway.
+        vm.prank(challenger);
+        uint256 a = bonded.notice{value: 1 ether}(cp, sig);
+        bonded.respondCoverage(a, _anchorBatch(2), new bytes32[](0));
+        assertEq(bonded.credit(gw), 1 ether);
+
+        // Convicted: the bond returns to the challenger.
+        Registry.Checkpoint memory cp4 = Registry.Checkpoint(DEV, 4, heads[4]);
+        bytes memory sig4 = _devSig(DEV, 4, heads[4], devKey);
+        vm.prank(challenger);
+        uint256 b = bonded.notice{value: 1 ether}(cp4, sig4);
+        vm.warp(block.timestamp + WINDOW + 1);
+        bonded.finalize(b);
+        assertEq(bonded.credit(challenger), 1 ether);
+        vm.prank(challenger);
+        bonded.withdraw();
+        assertEq(challenger.balance, 1 ether);
+    }
+
+    // ------------------------------------------------- device equivocation
+
+    function test_DeviceEquivocation_RevokesKey() public {
+        _makeChain(3, 0);
+        Registry.Checkpoint memory a = Registry.Checkpoint(DEV, 3, heads[3]);
+        Registry.Checkpoint memory b = Registry.Checkpoint(DEV, 3, keccak256("forked history"));
+        bytes memory sigA = _devSig(DEV, 3, a.head, devKey);
+        bytes memory sigB = _devSig(DEV, 3, b.head, devKey);
+        reg.proveDeviceEquivocation(a, sigA, b, sigB);
+        (,, bool revoked) = reg.devices(DEV);
+        assertTrue(revoked);
+        vm.expectRevert(Registry.Revoked.selector);
+        reg.notice(b, sigB);
+    }
+
+    function test_FirstAnchorTime_Preserved() public {
+        vm.startPrank(gw);
+        reg.anchor(keccak256("root"));
+        uint256 first = reg.anchoredAt(gw, keccak256("root"));
+        vm.warp(block.timestamp + 50);
+        reg.anchor(keccak256("root"));
+        vm.stopPrank();
+        assertEq(reg.anchoredAt(gw, keccak256("root")), first);
+    }
+
     // ------------------------------------------- non-frameability (fuzz)
+
+    /// NOTICE-FULL non-frameability: for any chain length, alarm position and noticed head, an honest
+    /// gateway that anchors the head and publishes the payload is never convicted.
+    function testFuzz_NonFrameability_NoticeFull(uint8 nRaw, uint8 aRaw, uint8 cRaw) public {
+        uint64 n = uint64(bound(nRaw, 1, 48));
+        uint64 alarmAt = uint64(bound(aRaw, 1, n));
+        uint64 c = uint64(bound(cRaw, alarmAt, n));
+        _makeChain(n, alarmAt);
+        uint256 id = _noticeFull(alarmAt, c);
+        Registry.Coverage memory cov = _batch(c);
+        vm.prank(gw);
+        reg.anchorAndRespond(id, cov, new bytes32[](0), _payload(alarmAt));
+        assertEq(uint8(_status(id)), uint8(Registry.Status.Dismissed));
+        assertFalse(reg.convicted(gw));
+    }
+
 
     /// Definition 3(3): for any honest history (n events, receipt at k, anchored head m >= k
     /// before the deadline), the honest gateway's response is always accepted and it is never convicted.

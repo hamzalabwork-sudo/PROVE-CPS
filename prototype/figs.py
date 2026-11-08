@@ -36,7 +36,7 @@ def pareto():
         ("B2 per-event hash", g("B2"), SERIES[2], None, "-."),
         ("B1 full on-chain log", g("B1"), SERIES[3], None, ":"),
     ]
-    fig, ax = plt.subplots(figsize=(3.45, 2.0))
+    fig, ax = plt.subplots(figsize=(3.45, 1.7))
     ax.grid(True, which="major", color=GRID, linewidth=0.5)
     ax.set_axisbelow(True)
     for label, ys, c, m, ls in series:
@@ -58,45 +58,55 @@ def pareto():
     lo, hi = g("provecps")[i30], g("B3_fixed")[i30]
     ax.annotate("", xy=(30, lo * 1.12), xytext=(30, hi * 0.88),
                 arrowprops=dict(arrowstyle="<->", color=INK2, linewidth=0.6, shrinkA=0, shrinkB=0))
-    ax.text(28, (lo * hi) ** 0.5 * 1.25, f"{100 * (1 - lo / hi):.0f}% less gas", color=INK2,
-            fontsize=6.3, ha="right", va="center")
+    ax.text(32, hi * 1.25, f"{100 * (1 - lo / hi):.0f}% less gas", color=INK2,
+            fontsize=6.3, ha="left", va="bottom")
     fig.savefig(OUT / "pareto.pdf")
     fig.savefig(OUT / "pareto.png", dpi=220)
     print("wrote", OUT / "pareto.pdf")
 
 
 def frame():
-    """Non-frameability phase transition: share of honest-gateway trials with a (false) conviction vs the
-    partition length O, for two response windows. Two series -> slots 1-2, plus marker/linestyle encoding."""
+    """Non-frameability phase transition on the predicted-boundary axis. An honest gateway cut off for O seconds
+    from A0 can answer only after A0 + O, while the first challenge opened at T_c must be answered by T_c + W.
+    x = (A0 + O) - (T_c + W): the analysis predicts a conviction iff x + Delta_L > 0. Each point is one (W, O)
+    variant (14 windows, x averaged; per-window x spans < 7 s); two series -> slots 1-2, plus marker/linestyle."""
     from collections import defaultdict
     g = defaultdict(list)
-    for line in open(ROOT / "experiments/results/frame_sweep.jsonl"):
+    agree = n = 0
+    for line in open(ROOT / "experiments/results/frame_sweep_v2.jsonl"):
         r = json.loads(line)
-        if "error" not in r:
-            g[(r["params"]["W"], r["params"]["O"])].append(r["gateway_convicted"])
-    fig, ax = plt.subplots(figsize=(3.45, 1.75))
+        if "error" in r:
+            continue
+        P = r["params"]
+        x = P["O"] - r["first_challenge_rel"] - P["W"]
+        g[(P["W"], P["O"])].append((x, r["gateway_convicted"]))
+        n += 1
+        agree += (x > 0) == bool(r["gateway_convicted"])
+    fig, ax = plt.subplots(figsize=(3.45, 1.5))
     ax.grid(True, color=GRID, linewidth=0.5)
     ax.set_axisbelow(True)
-    # The two curves coincide (the transition depends on O - W only); draw the first thick and solid under a
-    # thin dashed second so both stay visible, and say so in the legend.
     for (W, c, m, ls, lw, ms) in ((120, SERIES[0], "o", "-", 3.2, 5.2), (300, SERIES[1], "s", "--", 1.4, 3.0)):
-        pts = sorted((O - W, 100 * sum(v) / len(v)) for (w, O), v in g.items() if w == W)
+        pts = sorted((sum(x for x, _ in v) / len(v), 100 * sum(bool(k) for _, k in v) / len(v))
+                     for (w, O), v in g.items() if w == W)
         ax.plot([p[0] for p in pts], [p[1] for p in pts], color=c, linewidth=lw, linestyle=ls, marker=m,
                 markersize=ms, markeredgecolor="white", markeredgewidth=0.6,
                 label=rf"$W_{{\mathrm{{resp}}}}$ = {W} s")
-    ax.axvspan(-200, -2.555, color=GRID, alpha=0.6, linewidth=0)
-    ax.text(-185, 55, "Theorem 3 condition holds\n" r"($W_{\mathrm{resp}} > O + \Delta_L$)", color=INK2, fontsize=6.3,
+    ax.axvspan(-260, 0, color=GRID, alpha=0.6, linewidth=0)
+    ax.axvline(0, color=INK2, linewidth=0.7, linestyle=":")
+    ax.text(-250, 55, "predicted safe:\nanswer lands before\nthe challenge deadline", color=INK2, fontsize=6.3,
             ha="left", va="center")
-    leg = ax.legend(loc="center right", frameon=False, fontsize=6.5, title="curves coincide", title_fontsize=6.3)
+    ax.text(14, 55, f"predicted = observed\nin {agree}/{n} trials", color=INK, fontsize=6.3, ha="left",
+            va="center")
+    leg = ax.legend(loc="lower right", frameon=False, fontsize=6.5)
     for t in leg.get_texts():
         t.set_color(INK)
-    ax.set_xlim(-200, 190)
+    ax.set_xlim(-260, 170)
     ax.set_ylim(-5, 105)
-    ax.set_xlabel(r"Partition length minus response window, $O - W_{\mathrm{resp}}$ (s)")
+    ax.set_xlabel(r"Outage end minus challenge deadline, $(A_0{+}O)-(T_c{+}W_{\mathrm{resp}})$ (s)")
     ax.set_ylabel("Honest trials convicted (%)")
     fig.savefig(OUT / "frame.pdf")
     fig.savefig(OUT / "frame.png", dpi=220)
-    print("wrote", OUT / "frame.pdf")
+    print("wrote", OUT / "frame.pdf", agree, n)
 
 
 if __name__ == "__main__":

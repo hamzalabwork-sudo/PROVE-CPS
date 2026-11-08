@@ -32,3 +32,6 @@ experiments/results/*.jsonl
 paper/main.pdf
 paper/figs/*.aux
 paper/figs/*.log
+paper/*.fdb_latexmk
+paper/*.fls
+paper/*.synctex.gz

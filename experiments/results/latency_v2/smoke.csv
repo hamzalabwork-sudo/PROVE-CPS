@@ -1,0 +1,5 @@
+submit_to_receipt_ms,read_consistency_ms,rpc_rtt_ms,block_age_before_s,block,block_timestamp,ts_minus_submit_s,ts_minus_receipt_s,gas_used,phase,chain_id,rpc,vantage,measured_at,label
+2153.8,19.8,54.0,0.3,378222,1794125126,1.675,-0.479,47825,first,20271,http://localhost:8545,DESKTOP-PV6QPJV,1794125132,smoke
+1514.1,110.5,51.1,0.6,378223,1794125128,1.396,-0.118,47825,warm,20271,http://localhost:8545,DESKTOP-PV6QPJV,1794125132,smoke
+1866.8,66.9,60.6,0.3,378224,1794125130,1.675,-0.192,47825,warm,20271,http://localhost:8545,DESKTOP-PV6QPJV,1794125132,smoke
+1846.8,58.0,12.6,0.4,378225,1794125132,1.602,-0.244,47825,warm,20271,http://localhost:8545,DESKTOP-PV6QPJV,1794125132,smoke

@@ -62,6 +62,14 @@ class AvailabilityEvidence:
     later: tuple  # event hashes from header.counter + 1 up to receipt.counter
 
 
+@dataclass(frozen=True, slots=True)
+class NoticeFullEvidence:
+    """What a witness needs to call Registry.noticeFull for one unreceipted FULL event."""
+    prev_head: bytes
+    header: Header
+    later: tuple  # event hashes from header.counter + 1 up to the checkpoint head's counter
+
+
 @dataclass(slots=True)
 class CheckpointMsg:
     """Sent every p seconds from device to witness over a path that does not traverse the gateway."""
@@ -71,3 +79,5 @@ class CheckpointMsg:
     receipts: list = field(default_factory=list)     # every receipt accepted since the last checkpoint
     evidence: list = field(default_factory=list)     # AvailabilityEvidence for new FULL events
     conflicting: list = field(default_factory=list)  # gateway-signed receipts that contradict the device chain
+    payloads: list = field(default_factory=list)     # (hash, bytes) of new FULL payloads: the second path (v2)
+    full_pending: list = field(default_factory=list) # NoticeFullEvidence for FULL events unreceipted too long

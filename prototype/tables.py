@@ -23,9 +23,11 @@ from provecps.baselines import Ctx, outcome  # noqa: E402
 
 ROOT = Path(__file__).resolve().parents[1]
 SYM = {"attributed": r"\CIRCLE", "late": r"\textsf{L}", "flagged-unattributed": r"\LEFTcircle",
-       "covered-full": r"\Circle", "covered-digest": r"$\Diamond$", "undetected": r"\Circle", "n/a": "--"}
+       "covered-full": r"\Circle", "covered-digest": r"$\Diamond$", "undetected": r"\Circle", "n/a": "--",
+       "payload-lost": r"\Circle"}
 COLS = [("A1", "A1", None), ("A2", "A2$^{F}$", True), ("A2", "A2$^{D}$", False), ("A3", "A3", None),
-        ("A4", "A4", None), ("A5", "A5", None), ("A6", "A6", None), ("A7", "A7", None),
+        ("A4", "A4", None), ("A5", "A5", None), ("A6", "A6", None), ("A7", "A7", None), ("A8", "A8$^{F}$", True),
+        ("A9", "A9", None),
         ("A1-unw", "A1$^{u}$", None), ("A3-unw", "A3$^{u}$", None), ("A4-unw", "A4$^{u}$", None)]
 SYSTEMS = [("B1-B4", ["B1", "B2", "B3", "B4"]), ("B5", ["B5"]), ("B5+W", ["B5+W"]), ("B6", ["B6-isolated"]),
            ("B6+W", ["B6+W"]), ("PROVE-CPS", ["PROVE-CPS"])]
@@ -65,7 +67,7 @@ def collect(path):
                 if a == "A6" and not delayed(r, P):
                     continue
                 cells[("PROVE-CPS", label)][norm(r["outcome"], r["full"])] += 1
-                gap = float("inf") if a.removesuffix("-unw") in ("A1", "A3", "A7") else t["window_s"]
+                gap = float("inf") if a.removesuffix("-unw") in ("A1", "A3", "A7", "A8", "A9") else t["window_s"]
                 for sysname, members in SYSTEMS[:-1]:
                     for m in members:
                         base_m, w = m.removesuffix("-isolated").removesuffix("+W"), m.endswith("+W")
@@ -91,11 +93,11 @@ def main():
              r"\CIRCLE{} attributed (gateway convicted on-chain); \textsf{L} deadline violation proven against the gateway (no conviction); "
              r"\LEFTcircle{} flagged but unattributable; $\Diamond$ existence proven, content not required by the policy; "
              r"\Circle{} undetected. A2$^{F}$/A2$^{D}$: deleted \textsf{FULL}/\textsf{DIGEST} events; A6 counts only "
-             r"events that missed their deadline; $^{u}$: adversary suppresses only unwitnessed devices (Theorem~\ref{thm:impossibility}). "
+             r"events that missed their deadline; A8$^{F}$: \textsf{FULL} events under custody refusal; $^{u}$: adversary suppresses only unwitnessed devices (Theorem~\ref{thm:impossibility}). "
              r"Numbers give the share of the majority outcome when below 100\%. B1--B4 behave identically.}",
              r"\label{tab:matrix}", r"\small", r"\setlength{\tabcolsep}{4pt}",
-             r"\begin{tabular}{@{}l" + "c" * 8 + "|ccc@{}}", r"\toprule",
-             r" & \multicolumn{8}{c|}{Witnessed devices (Theorem~\ref{thm:achievability})} & "
+             r"\begin{tabular}{@{}l" + "c" * 10 + "|ccc@{}}", r"\toprule",
+             r" & \multicolumn{10}{c|}{Witnessed devices (Theorem~\ref{thm:achievability})} & "
              r"\multicolumn{3}{c}{Unwitnessed (Thm.~\ref{thm:impossibility})}\\",
              "System & " + " & ".join(lbl for _, lbl, _ in COLS) + r"\\", r"\midrule"]
     for sysname, _ in SYSTEMS:

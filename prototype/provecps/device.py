@@ -5,19 +5,21 @@ Runs unchanged on a Raspberry Pi; the only dependencies are keccak and secp256k1
 from eth_hash.auto import keccak
 
 from . import crypto
-from .messages import AvailabilityEvidence, CheckpointMsg, EventMsg, Header, Receipt, SignedHead
+from .messages import AvailabilityEvidence, CheckpointMsg, EventMsg, Header, NoticeFullEvidence, Receipt, SignedHead
 
 
 class Device:
     def __init__(self, device_id: int, signer: crypto.Signer, gateway_addr: str, domain: bytes, policy,
-                 tau_max: int, clock_slack: int = 5):
+                 tau_max: int, clock_slack: int = 5, notice_after: int = 15, tau_full: int | None = None):
         self.id = device_id
         self.signer = signer
         self.gateway_addr = gateway_addr
         self.domain = domain
         self.policy = policy
-        self.tau_max = tau_max            # longest deadline the policy allows; longer receipts are rejected
+        self.tau_max = tau_max            # deadline of the least demanding class (DIGEST)
+        self.tau_full = tau_max if tau_full is None else tau_full  # deadline of FULL events
         self.clock_slack = clock_slack
+        self.notice_after = notice_after  # a FULL event unreceipted this long is handed to the witness for NOTICE-FULL
 
         self.counter = 0
         self.head = crypto.ZERO32
@@ -30,6 +32,8 @@ class Device:
         self.receipts_out = []
         self.evidence_out = []
         self.conflicting = []
+        self.payloads_out = []           # (hash, payload) of FULL events, sent once to the witness (second path)
+        self.full_sent = set()           # FULL counters already handed over as NoticeFullEvidence
         self.stats = {"events": 0, "full": 0, "max_buffer": 0, "bad_receipts": 0}
 
     # ---------------------------------------------------------------- events
@@ -50,6 +54,7 @@ class Device:
         self.stats["events"] += 1
         if self.policy.requires_full(features, ts):
             self.full_wait[c] = (hdr, prev)
+            self.payloads_out.append((hdr.payload_hash, payload))
             self.stats["full"] += 1
         self.stats["max_buffer"] = max(self.stats["max_buffer"], len(self.unreceipted))
         return msg
@@ -75,13 +80,17 @@ class Device:
             # A gateway-signed statement about our chain that is false: keep it, it convicts (EQUIVOCATION).
             self._conflict(r)
             return False
-        if r.deadline > now + self.tau_max + self.clock_slack:
+        # The deadline may not exceed the class deadline of the most demanding event this receipt newly covers
+        # (the device evaluates the public policy itself), so a gateway cannot give a FULL event a DIGEST deadline.
+        tau = self.tau_full if any(k <= r.counter for k in self.full_wait) else self.tau_max
+        if r.deadline > now + tau + self.clock_slack:
             self.stats["bad_receipts"] += 1  # a stretched deadline would weaken the detection bound
             return False
         self.receipt = r
         self.receipts_out.append(r)
         for c in sorted(k for k in self.full_wait if k <= r.counter):
             hdr, prev = self.full_wait.pop(c)
+            self.full_sent.discard(c)
             later = tuple(self.ev_hashes[k] for k in range(c + 1, r.counter + 1))
             self.evidence_out.append(AvailabilityEvidence(r, prev, hdr, later))
         for c in [k for k in self.unreceipted if k <= r.counter]:
@@ -98,10 +107,18 @@ class Device:
 
     # ---------------------------------------------------------------- witness path
 
-    def checkpoint(self) -> CheckpointMsg | None:
+    def checkpoint(self, now: float | None = None) -> CheckpointMsg | None:
         if self.latest is None:
             return None
         oldest = min((ts for _, ts in self.unreceipted.values()), default=None)
-        msg = CheckpointMsg(self.latest, self.receipt, oldest, self.receipts_out, self.evidence_out, self.conflicting)
-        self.receipts_out, self.evidence_out, self.conflicting = [], [], []
+        pending = []
+        if now is not None:
+            for c, (hdr, prev) in sorted(self.full_wait.items()):
+                if c not in self.full_sent and now - hdr.timestamp >= self.notice_after:
+                    self.full_sent.add(c)
+                    later = tuple(self.ev_hashes[k] for k in range(c + 1, self.counter + 1))
+                    pending.append(NoticeFullEvidence(prev, hdr, later))
+        msg = CheckpointMsg(self.latest, self.receipt, oldest, self.receipts_out, self.evidence_out, self.conflicting,
+                            self.payloads_out, pending)
+        self.receipts_out, self.evidence_out, self.conflicting, self.payloads_out = [], [], [], []
         return msg

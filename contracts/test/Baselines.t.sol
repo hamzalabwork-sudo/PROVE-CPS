@@ -20,7 +20,7 @@ contract BaselinesTest is Test {
         b2 = new HashLog();
         b3 = new MerkleLog();
         b4 = new SequencedLog();
-        reg = new Registry(300);
+        reg = new Registry(300, 0);
         b1.registerGateway(gw);
         b2.registerGateway(gw);
         b3.registerGateway(gw);

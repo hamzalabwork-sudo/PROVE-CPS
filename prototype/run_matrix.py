@@ -17,7 +17,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 RESTART_EVERY = 6
-SLOW = {"A1": 0, "A3": 1, "A7": 2, "A1-unw": 3, "A3-unw": 4}  # schedule long trials first
+SLOW = {"A1": 0, "A3": 1, "A7": 2, "A8": 3, "A8-v1": 4, "A9": 5, "A1-unw": 6, "A3-unw": 7}  # schedule long trials first
 
 
 def free_port():

@@ -48,8 +48,8 @@ class Anvil:
             raise RuntimeError(f"{method}: {r['error']}")
         return r["result"]
 
-    def send(self, sender, to, data, gas=GAS_LIMIT):
-        tx = {"from": sender, "data": data, "gas": hex(gas), "gasPrice": "0x0"}
+    def send(self, sender, to, data, gas=GAS_LIMIT, value=0):
+        tx = {"from": sender, "data": data, "gas": hex(gas), "gasPrice": "0x0", "value": hex(value)}
         if to:
             tx["to"] = to
         return self.rpc("eth_sendTransaction", [tx])
@@ -84,9 +84,9 @@ class SimLedger:
 
     # -------------------------------------------------------------- setup (instant, before t0)
 
-    def deploy(self, admin: str, response_window: int):
+    def deploy(self, admin: str, response_window: int, bond: int = 0):
         factory = self.chain.w3.eth.contract(abi=self.abi, bytecode=self.bytecode)
-        h = self.chain.send(admin, None, factory.constructor(response_window).data_in_transaction)
+        h = self.chain.send(admin, None, factory.constructor(response_window, bond).data_in_transaction)
         self.chain.mine(self.chain.last_ts + 1)
         rc = self.chain.receipt(h)
         assert rc.status == 1, "deploy failed"
@@ -104,26 +104,27 @@ class SimLedger:
 
     # -------------------------------------------------------------- simulated-time transactions
 
-    def submit(self, sender, fn, args, cb=None):
+    def submit(self, sender, fn, args, cb=None, value=0):
         t = max(self.sim.now + self.rng.choice(self.delays), self._sender_last.get(sender, 0))
         sec = max(math.ceil(t), self.chain.last_ts + 1)
         self._sender_last[sender] = sec
         if sec not in self._pending:
             self.sim.at(sec, self._mine, sec)
-        self._pending[sec].append((sender, fn, args, cb))
+        self._pending[sec].append((sender, fn, args, cb, value))
 
     def _mine(self, sec):
         batch = self._pending.pop(sec)
-        hashes = [self.chain.send(s, self.address, self.contract.encode_abi(fn, args=list(a))) for s, fn, a, _ in batch]
+        hashes = [self.chain.send(s, self.address, self.contract.encode_abi(fn, args=list(a)), value=v)
+                  for s, fn, a, _, v in batch]
         ts = self.chain.mine(sec)
-        for (sender, fn, args, cb), h in zip(batch, hashes):
+        for (sender, fn, args, cb, _), h in zip(batch, hashes):
             rc = self.chain.receipt(h)
             evs = [(self._topics[lg["topics"][0]], self._decode(lg)) for lg in rc.logs if lg["topics"][0] in self._topics]
             self.log.append((ts, sender, fn, args, rc.status, rc.gasUsed, evs))
             for name, a in evs:
                 self.events.append((ts, name, a))
                 if name == "Anchored":
-                    self.anchored[(a["gateway"], a["root"])] = ts  # anchor() overwrites, as the contract does
+                    self.anchored.setdefault((a["gateway"], a["root"]), ts)  # the contract keeps the first time
                 elif name == "ChallengeOpened":
                     self.status[a["id"]] = 1
                 elif name == "ChallengeResolved":
@@ -156,12 +157,12 @@ class LedgerPort:
     def up(self) -> bool:
         return not self.outages.down(self.sim.now)
 
-    def submit(self, fn, args, cb=None):
+    def submit(self, fn, args, cb=None, value=0):
         t = self.outages.up_at(self.sim.now)
         if t > self.sim.now:
-            self.sim.at(t, self.ledger.submit, self.sender, fn, args, cb)
+            self.sim.at(t, self.ledger.submit, self.sender, fn, args, cb, value)
         else:
-            self.ledger.submit(self.sender, fn, args, cb)
+            self.ledger.submit(self.sender, fn, args, cb, value)
 
     def subscribe(self, handler):
         def deliver(*a):

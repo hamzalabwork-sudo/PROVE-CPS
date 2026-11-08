@@ -63,7 +63,7 @@ def main():
     for off, dev, f, payload in stream(n, synthetic):
         d = devs.get(dev)
         if d is None:
-            d = devs[dev] = Device(dev, crypto.Signer.from_seed(f"bench-dev{dev}"), gw.address, dom, pol, tau_max=300)
+            d = devs[dev] = Device(dev, crypto.Signer.from_seed(f"bench-dev{dev}"), gw.address, dom, pol, tau_max=300, tau_full=30)
         ts = 1_700_000_000 + off
         t0 = time.perf_counter_ns()
         m = d.emit(ts, f, payload)

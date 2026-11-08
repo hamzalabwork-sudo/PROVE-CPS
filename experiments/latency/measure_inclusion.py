@@ -58,6 +58,7 @@ def anchor_once(w3, acct, registry, chain_id, nonce, tag):
     age = time.time() - latest.timestamp
     rtt = rtt_ms(w3)
     t0 = time.perf_counter()
+    wall0 = time.time()
     h = w3.eth.send_raw_transaction(raw)
     while True:
         try:
@@ -68,6 +69,7 @@ def anchor_once(w3, acct, registry, chain_id, nonce, tag):
             pass
         time.sleep(POLL_S)
     t1 = time.perf_counter()
+    wall1 = time.time()
     assert rc.status == 1, f"anchor reverted: {h.hex()}"
     # A load-balanced RPC endpoint may serve the receipt from one node and the block from another
     # that has not caught up; record how long reads take to become consistent.
@@ -85,11 +87,14 @@ def anchor_once(w3, acct, registry, chain_id, nonce, tag):
         "block_age_before_s": round(age, 1),
         "block": rc.blockNumber,
         "block_timestamp": blk.timestamp,
+        # timestamp skew evidence (delta_ts): block time minus the client's wall clock at submission and at receipt
+        "ts_minus_submit_s": round(blk.timestamp - wall0, 3),
+        "ts_minus_receipt_s": round(blk.timestamp - wall1, 3),
         "gas_used": rc.gasUsed,
     }
 
 
-def main(vars_file, n_warm, out_csv):
+def main(vars_file, n_warm, out_csv, label=""):
     v = load_vars(vars_file)
     registry = Web3.to_checksum_address((Path(vars_file).parent / "registry-address.txt").read_text().strip())
     w3 = Web3(Web3.HTTPProvider(v["RPC"], request_kwargs={"timeout": 120}))
@@ -109,7 +114,7 @@ def main(vars_file, n_warm, out_csv):
         rows.append(r)
 
     for r in rows:
-        r.update({"chain_id": chain_id, "rpc": v["RPC"], "vantage": host, "measured_at": int(time.time())})
+        r.update({"chain_id": chain_id, "rpc": v["RPC"], "vantage": host, "measured_at": int(time.time()), "label": label})
     new = not os.path.exists(out_csv)
     with open(out_csv, "a", newline="") as f:
         w = csv.DictWriter(f, fieldnames=list(rows[0].keys()))
@@ -132,4 +137,4 @@ def main(vars_file, n_warm, out_csv):
 
 
 if __name__ == "__main__":
-    main(*sys.argv[1:4])
+    main(*sys.argv[1:5])

@@ -41,10 +41,10 @@ def load(path):
 
 
 def bounds(P, full, dl_max):
-    """Theorem 3 exactly as stated in the paper (+3 s: integer timestamps at three deadline comparisons)."""
+    """Theorem 2 exactly as stated in the paper (same formula as harness.theorem_bounds)."""
     tau = P["tau_full"] if full else P["tau_digest"]
-    d = P["notice_after"] + P["p"] + P["d_wit"] + tau + dl_max + 3
-    return d, d + P["W"] + dl_max + 1
+    d = P["notice_after"] + P["p"] + tau + P.get("sigma", 5) + dl_max + 3
+    return d, d + P["W"] + dl_max + 2
 
 
 def table1(trials):

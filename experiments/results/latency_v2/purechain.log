@@ -1,0 +1,6 @@
+chain 900520900520 via https://purechainnode.com from ICT
+  first tx: 1898.8 ms (phase=cold, chain idle 101134.2 s before)
+  warm n=2000: p50=1947 ms  p95=2008 ms  p99=2525 ms  max=2978 ms
+  receipt->block visible: max=293 ms, nonzero in 570/2001 txs
+  rpc rtt p50=13 ms; gas/anchor=47825
+DONE

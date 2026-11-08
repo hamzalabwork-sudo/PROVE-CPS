@@ -36,7 +36,9 @@ class Ctx:
 
 
 def _truncating(attack):
-    return attack in ("A1", "A3", "A7", "A1-unw", "A3-unw")
+    # A8 (custody refusal) is a stonewall to any design without an on-chain notice; A9 (slow walk) is a receipted
+    # truncation with later receipts.
+    return attack.removesuffix("-unw").removesuffix("-v1") in ("A1", "A3", "A7", "A8", "A9")
 
 
 def outcome(base, witness, attack, ev, stream_gap, ctx):
@@ -45,7 +47,7 @@ def outcome(base, witness, attack, ev, stream_gap, ctx):
     ev: dict with 'ts', 'full'. stream_gap: seconds the device's committed stream is silent around this event
     under the attack (inf for truncation, the window length for a mid-stream drop, 0 otherwise).
     """
-    a = attack.removesuffix("-unw")
+    a = attack.removesuffix("-unw").removesuffix("-v1")
     silence = stream_gap > ctx.silence_after
     gw_signed_promise = base == "B6"
     if a == "A5":
@@ -65,7 +67,7 @@ def outcome(base, witness, attack, ev, stream_gap, ctx):
             return ("covered", None)          # a device chain/log entry commits to the event; content is lost
         return ("flagged-unattributed", ctx.silence_after) if silence else ("undetected", None)
     if _truncating(a):
-        receipted = a == "A1"
+        receipted = a in ("A1", "A9")
         if base == "B6" and witness and receipted:
             # An inclusion promise plus a signed tree head without the entry after MMD: self-contained proof.
             return ("attributed", ctx.mmd + ctx.p)

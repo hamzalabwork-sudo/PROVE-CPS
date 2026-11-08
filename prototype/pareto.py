@@ -19,7 +19,7 @@ from provecps import hai  # noqa: E402
 from provecps.policy import Policy  # noqa: E402
 from provecps.schedule import fixed_interval, receipts_from_replay, stabbing  # noqa: E402
 
-GAS = {"anchor": 47825, "merkle": 47762, "hash": 46166, "full": 95068}
+GAS = {"anchor": 48086, "merkle": 47762, "hash": 46166, "full": 95068}
 DELTA = 3.0
 TAU_DIGEST = 300
 TAUS = [5, 10, 15, 20, 30, 45, 60, 90, 120, 180, 300]
