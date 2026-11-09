@@ -22,6 +22,7 @@ sys.path.insert(0, str(ROOT / "prototype"))
 
 from eth_account import Account  # noqa: E402
 from web3 import Web3  # noqa: E402
+from web3.logs import DISCARD  # noqa: E402
 from web3.middleware import ExtraDataToPOAMiddleware  # noqa: E402
 
 from provecps import crypto  # noqa: E402
@@ -63,7 +64,7 @@ class Tracker:
                     for t in mine:
                         rc = self.w3.eth.get_transaction_receipt(t["hash"])
                         gas += rc.gasUsed
-                        for ev in self.c.events.ChallengeOpened().process_receipt(rc):
+                        for ev in self.c.events.ChallengeOpened().process_receipt(rc, errors=DISCARD):
                             with self.lock:
                                 self.opened[ev["args"]["deviceId"]] = (ev["args"]["id"], b.timestamp)
                         with self.lock:

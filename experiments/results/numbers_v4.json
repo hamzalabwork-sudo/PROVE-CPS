@@ -1,0 +1,246 @@
+{
+ "ablation": {
+  "device_check=0,a9_stretch=600 A9": {
+   "trials": 52,
+   "outcomes": {
+    "attributed": 55374
+   },
+   "outcomes_full_protocol": {
+    "attributed": 55374
+   },
+   "convicted_trials": 52,
+   "max_over_bound_d": 592.111,
+   "min_over_bound_d": -333.889,
+   "max_over_bound_a": 590.222,
+   "events_over_bound_d": 42907,
+   "events": 55374
+  },
+  "notice=0 A3": {
+   "trials": 52,
+   "outcomes": {
+    "flagged-unattributed": 55374
+   },
+   "outcomes_full_protocol": {
+    "attributed": 55374
+   },
+   "convicted_trials": 0
+  },
+  "notice=0 A7": {
+   "trials": 52,
+   "outcomes": {
+    "flagged-unattributed": 55374
+   },
+   "outcomes_full_protocol": {
+    "attributed": 55374
+   },
+   "convicted_trials": 14
+  },
+  "notice=0 A8": {
+   "trials": 52,
+   "outcomes": {
+    "flagged-unattributed": 7811
+   },
+   "outcomes_full_protocol": {
+    "attributed": 7811
+   },
+   "convicted_trials": 0
+  },
+  "policy_checks=0 A2": {
+   "trials": 52,
+   "outcomes": {
+    "payload-lost": 7811
+   },
+   "outcomes_full_protocol": {
+    "attributed": 7811
+   },
+   "convicted_trials": 0
+  },
+  "policy_checks=0 A4": {
+   "trials": 52,
+   "outcomes": {
+    "payload-lost": 7811
+   },
+   "outcomes_full_protocol": {
+    "attributed": 7811
+   },
+   "convicted_trials": 0
+  },
+  "policy_checks=0 A8": {
+   "trials": 52,
+   "outcomes": {
+    "payload-lost": 7811
+   },
+   "outcomes_full_protocol": {
+    "attributed": 7811
+   },
+   "convicted_trials": 0
+  },
+  "receipts=0 honest": {
+   "trials": 52,
+   "outcomes": {
+    "covered": 7811
+   },
+   "outcomes_full_protocol": {
+    "covered": 7811
+   },
+   "convicted_trials": 0,
+   "disputes": 180069,
+   "disputes_full_protocol": 0,
+   "txs": 360989,
+   "txs_full_protocol": 948,
+   "gas": 34681690597,
+   "gas_full_protocol": 45584244,
+   "max_buffer": 3308,
+   "max_buffer_full_protocol": 1,
+   "seconds": 89384,
+   "tx_ratio": 380.7900843881857,
+   "gas_ratio": 760.8262757851156
+  }
+ },
+ "crash": {
+  "30": {
+   "trials": 52,
+   "convicted_trials": 0,
+   "challenges": 802,
+   "dismissed": 753,
+   "late": 49,
+   "convicted": 0,
+   "outcomes": {
+    "covered": 62632
+   },
+   "recovered_open": 755,
+   "max_d_det_witnessed": 309
+  },
+  "120": {
+   "trials": 52,
+   "convicted_trials": 0,
+   "challenges": 10860,
+   "dismissed": 10020,
+   "late": 840,
+   "convicted": 0,
+   "outcomes": {
+    "covered": 62632
+   },
+   "recovered_open": 10720,
+   "max_d_det_witnessed": 309
+  },
+  "240": {
+   "trials": 52,
+   "convicted_trials": 0,
+   "challenges": 27118,
+   "dismissed": 22165,
+   "late": 4953,
+   "convicted": 0,
+   "outcomes": {
+    "covered": 62632
+   },
+   "recovered_open": 26731,
+   "max_d_det_witnessed": 304
+  }
+ },
+ "besu_rt": [],
+ "notice_storm": [],
+ "cost": {
+  "policy": {
+   "full_pct": 0.5234439691487708,
+   "gas_per_h": {
+    "provecps": 1790746.987341772,
+    "B7_two_tier": 2142639.594936709,
+    "B3": 6368669.721518988
+   },
+   "batches_per_h": {
+    "provecps": 37.24050632911393,
+    "B7": 44.860759493670884,
+    "B3": 133.34177215189874
+   },
+   "saving_vs_B3_pct": 71.88193036151571,
+   "vs_B7_pct": -16.423322355588756
+  },
+  "random": [
+   [
+    0.001,
+    70.9,
+    -22.5
+   ],
+   [
+    0.002,
+    55.9,
+    -16.5
+   ],
+   [
+    0.005,
+    34.5,
+    -11.6
+   ],
+   [
+    0.01,
+    21.3,
+    -9.8
+   ],
+   [
+    0.02,
+    12.3,
+    -8.8
+   ],
+   [
+    0.05,
+    6.2,
+    -8.3
+   ],
+   [
+    0.1,
+    4.0,
+    -8.1
+   ],
+   [
+    0.2,
+    3.2,
+    -8.0
+   ]
+  ],
+  "envelope": [
+   [
+    200,
+    0.34,
+    79.1,
+    -13.9
+   ],
+   [
+    100,
+    0.4,
+    77.2,
+    -15.2
+   ],
+   [
+    50,
+    0.52,
+    71.9,
+    -16.4
+   ],
+   [
+    25,
+    0.67,
+    66.1,
+    -16.8
+   ],
+   [
+    0,
+    1.99,
+    21.4,
+    -9.8
+   ],
+   [
+    -25,
+    3.63,
+    9.9,
+    -8.6
+   ],
+   [
+    -50,
+    5.4,
+    7.8,
+    -8.4
+   ]
+  ]
+ }
+}

@@ -1,4 +1,4 @@
-"""Baseline archetypes B1-B6 on the same HAI traces and attack windows as PROVE-CPS.
+"""Baseline archetypes B1-B7 on the same HAI traces and attack windows as PROVE-CPS.
 
 Each archetype is reduced to the strongest auditor its evidence admits. To make failures structural rather
 than an artefact of a weak implementation, every baseline is granted:
@@ -24,6 +24,9 @@ BASELINES = {
     "B4": "gateway-sequenced batches",
     "B5": "device-signed hash chain anchored by the gateway (no receipts, no witness, no policy)",
     "B6": "transparency log with signed inclusion promises and gossip (no ledger)",
+    # Same per-class deadlines as PROVE-CPS (a fast tree for the events the gateway deems critical, a slow tree for
+    # the rest), but nothing binds the tier: its evidence is that of B3, so it is scored like B3.
+    "B7": "two-tier Merkle batching, tier chosen by the gateway",
 }
 
 

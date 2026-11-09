@@ -29,7 +29,9 @@ COLS = [("A1", "A1", None), ("A2", "A2$^{F}$", True), ("A2", "A2$^{D}$", False),
         ("A4", "A4", None), ("A5", "A5", None), ("A6", "A6", None), ("A7", "A7", None), ("A8", "A8$^{F}$", True),
         ("A9", "A9", None),
         ("A1-unw", "A1$^{u}$", None), ("A3-unw", "A3$^{u}$", None), ("A4-unw", "A4$^{u}$", None)]
-SYSTEMS = [("B1-B4", ["B1", "B2", "B3", "B4"]), ("B5", ["B5"]), ("B5+W", ["B5+W"]), ("B6", ["B6-isolated"]),
+# Rows group systems whose evidence admits the same auditor; a grouped cell pools its members' outcomes, so a
+# mixed group would show a share below 100%.
+SYSTEMS = [("B1-B4, B7", ["B1", "B2", "B3", "B4", "B7"]), ("B5, B5+W, B6", ["B5", "B5+W", "B6-isolated"]),
            ("B6+W", ["B6+W"]), ("PROVE-CPS", ["PROVE-CPS"])]
 
 
@@ -94,7 +96,7 @@ def main():
              r"\LEFTcircle{} flagged but unattributable; $\Diamond$ existence proven, content not required by the policy; "
              r"\Circle{} undetected. A2$^{F}$/A2$^{D}$: deleted \textsf{FULL}/\textsf{DIGEST} events; A6 counts only "
              r"events that missed their deadline; A8$^{F}$: \textsf{FULL} events under custody refusal; $^{u}$: adversary suppresses only unwitnessed devices (Theorem~\ref{thm:impossibility}). "
-             r"Numbers give the share of the majority outcome when below 100\%. B1--B4 behave identically.}",
+             r"Numbers give the share of the majority outcome when below 100\%.}",
              r"\label{tab:matrix}", r"\small", r"\setlength{\tabcolsep}{4pt}",
              r"\begin{tabular}{@{}l" + "c" * 10 + "|ccc@{}}", r"\toprule",
              r" & \multicolumn{10}{c|}{Witnessed devices (Theorem~\ref{thm:achievability})} & "

@@ -75,14 +75,21 @@ def run_lane(lane, strat_name, split, attack, scenario, out, lock, stop_after=0)
     abi, bytecode = load_artifact()
     seed = lambda who: crypto.Signer.from_seed(f"provecps-rt/{lane}/{time.time_ns()}/{who}")  # noqa: E731
     admin, gws, wit = seed("admin"), seed("gateway"), seed("witness")
-    reg = deploy(NODES[1], admin, abi, bytecode, P.W, P.bond)
     devices_ids = list(range(1, len(rep.tags) + 1))
     keys = {i: crypto.Signer.from_seed(f"provecps-sim/dev{i}").address for i in devices_ids}
+    for attempt in range(5):   # setup before the trial starts: a dropped RPC connection just means start over
+        try:
+            reg = deploy(NODES[1], admin, abi, bytecode, P.W, P.bond)
+            act = int(time.time()) + 8
+            calls = [("registerGateway", (gws.address,))] + [("registerDevice", (i, keys[i], gws.address))
+                                                            for i in devices_ids]
+            calls.append(("setPolicy", ([r.as_tuple() for r in hai.POLICY_RULES], act)))
+            setup_batch(NODES[1], admin, abi, reg, calls)
+            break
+        except Exception as e:
+            print(f"[lane {lane}] setup attempt {attempt} failed: {e!r}"[:200], flush=True)
+            time.sleep(5)
     policy = Policy()
-    act = int(time.time()) + 8
-    calls = [("registerGateway", (gws.address,))] + [("registerDevice", (i, keys[i], gws.address)) for i in devices_ids]
-    calls.append(("setPolicy", ([r.as_tuple() for r in hai.POLICY_RULES], act)))
-    setup_batch(NODES[1], admin, abi, reg, calls)
     policy.add(act, hai.POLICY_RULES)
     dom = crypto.domain_separator(20271, reg)
 
@@ -218,8 +225,14 @@ def main():
     ap.add_argument("--stop-after", type=int, default=0, help="smoke test: stop each lane after this many seconds")
     a = ap.parse_args()
     from web3 import Web3
-    heights = [Web3(Web3.HTTPProvider(f"http://127.0.0.1:{8545 + k}", request_kwargs={"timeout": 5})).eth.block_number
-               for k in range(4)]
+    isolated = a.isolate4 or "isolate4" in a.note     # validator 4 is cut off on purpose: do not query it
+    for attempt in range(10):   # the local RPC proxy occasionally drops a connection: retry
+        try:
+            heights = [Web3(Web3.HTTPProvider(f"http://127.0.0.1:{8545 + k}", request_kwargs={"timeout": 5}))
+                       .eth.block_number for k in range(3 if isolated else 4)]
+            break
+        except Exception:
+            time.sleep(3)
     assert max(heights) - min(heights) <= 3, f"validators out of sync: {heights}"   # a stalled node skews Delta_L
     print("validator heights", heights, flush=True)
     if a.isolate4:
