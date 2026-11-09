@@ -3,4 +3,5 @@ nonframe_tight VIOLATED 47688 distinct states found 2s
 detection_tight VIOLATED 10062 distinct states found 2s
 attribution_tight VIOLATED 227059 distinct states found 3s
 detection_ok HOLDS 107892998 distinct states found 1520s
-attribution_ok RUNNING (284 M distinct states at 14:01; resumable from checkpoint)
+attribution_ok HOLDS 558177221 distinct states found 7200s
+TLC_DONE

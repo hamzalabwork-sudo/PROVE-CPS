@@ -238,7 +238,18 @@ The model also contains a griefing witness that may post a `NOTICE` for any head
 formal/run_tlc.sh 16          # all six configurations -> formal/results/summary.txt
 ```
 
-[`results/summary.txt`](formal/results/summary.txt) holds the TLC verdicts, state counts and run times.
+[`results/summary.txt`](formal/results/summary.txt) holds the TLC verdicts, state counts and run times (TLC 2026.11.06, Java 21, 16 workers):
+
+| Configuration | Result | Distinct states | Time |
+|---|---|---:|---:|
+| `nonframe_ok` | holds | 3,363,680 | 22 s |
+| `nonframe_tight` | counterexample | 47,688 | 2 s |
+| `detection_ok` | holds | 107,892,998 | 25 min |
+| `detection_tight` | counterexample | 10,062 | 2 s |
+| `attribution_ok` | holds | 558,177,221 | 2 h |
+| `attribution_tight` | counterexample | 227,059 | 3 s |
+
+The `*_tight` counterexamples are in `results/*_tight.trace.txt`, and the full logs of the passing runs are in `results/*_ok.log.txt`. TLC estimates the probability that a fingerprint collision hid a state at 1.9e-4 for `detection_ok` and 0.08 for `attribution_ok`. Rerunning with another fingerprint function (`-fp`) makes the two estimates multiply.
 
 ### `experiments/`
 
