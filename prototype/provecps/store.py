@@ -7,6 +7,8 @@ class EvidenceStore:
     def __init__(self):
         self.payloads = {}                   # payload hash -> bytes, published by the gateway (its obligation)
         self.witness_payloads = {}           # payload hash -> bytes, copies held by witnesses (second path, v2)
+        self.witness_headers = {}            # (dev, counter) -> event hash, of headers held by witnesses (v3)
+        self.gateway_headers = {}            # (dev, counter) -> event hash, of headers published by the gateway (v3)
         self.manifests = {}                  # root -> (gateway, anchored_ts, [(dev, counter, head, sig, proof)])
         self.by_device = defaultdict(list)   # dev -> [(counter, root, head, sig, proof)]
         self.custody_log = {}                # (gateway, dev, counter) -> Receipt

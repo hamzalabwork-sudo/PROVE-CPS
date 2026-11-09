@@ -34,6 +34,7 @@ class Device:
         self.conflicting = []
         self.payloads_out = []           # (hash, payload) of FULL events, sent once to the witness (second path)
         self.full_sent = set()           # FULL counters already handed over as NoticeFullEvidence
+        self.headers_out = []            # headers of all events since the last checkpoint (DIGEST availability)
         self.stats = {"events": 0, "full": 0, "max_buffer": 0, "bad_receipts": 0}
 
     # ---------------------------------------------------------------- events
@@ -51,6 +52,7 @@ class Device:
         self.ev_hashes[c] = eh
         msg = EventMsg(hdr, payload, prev, self.latest)
         self.unreceipted[c] = (msg, ts)
+        self.headers_out.append(hdr)
         self.stats["events"] += 1
         if self.policy.requires_full(features, ts):
             self.full_wait[c] = (hdr, prev)
@@ -119,6 +121,7 @@ class Device:
                     later = tuple(self.ev_hashes[k] for k in range(c + 1, self.counter + 1))
                     pending.append(NoticeFullEvidence(prev, hdr, later))
         msg = CheckpointMsg(self.latest, self.receipt, oldest, self.receipts_out, self.evidence_out, self.conflicting,
-                            self.payloads_out, pending)
+                            self.payloads_out, pending, self.headers_out)
         self.receipts_out, self.evidence_out, self.conflicting, self.payloads_out = [], [], [], []
+        self.headers_out = []
         return msg

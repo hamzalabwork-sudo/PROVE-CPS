@@ -33,6 +33,9 @@ class Honest:
     def keep_payload(self, msg, full, now):   # retain and (if FULL) replicate the payload
         return True
 
+    def keep_header(self, msg, now):          # publish the event's signed header (DIGEST availability)
+        return True
+
     def cap(self, dev, st):                   # highest counter of `dev` the gateway is willing to anchor
         return None
 
@@ -58,6 +61,9 @@ class _Targeted(Honest):
 
     def _hit(self, dev, ts):
         return dev in self.targets and self.t0 <= ts < self.t1
+
+    def keep_header(self, msg, now):          # a suppressing gateway withholds the headers of target events
+        return not self._hit(msg.header.device_id, msg.header.timestamp)
 
 
 class TailTruncation(_Targeted):
@@ -232,6 +238,8 @@ class Gateway:
         st.custody[h.counter] = msg.payload if keep else None
         if full and keep:
             self.store.put_payload(h.payload_hash, msg.payload)
+        if self.strategy.keep_header(msg, now):
+            self.store.gateway_headers[(h.device_id, h.counter)] = h.hash()
         hold = self.strategy.receipt_delay(msg, now)
         deadline = (math.ceil(now + hold) + (self.tau_full if full else self.tau_digest)
                     + self.strategy.deadline_stretch(msg, now))

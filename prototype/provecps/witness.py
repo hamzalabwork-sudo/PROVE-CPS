@@ -70,6 +70,9 @@ class Witness:
         if self.notice_full:
             for ph, payload in cp.payloads:
                 self.store.witness_payloads[ph] = payload
+            for hdr in cp.headers:  # a header is authenticated by the signed head its event hash chains into
+                if hdr.device_id == dev:
+                    self.store.witness_headers[(dev, hdr.counter)] = hdr.hash()
             for e in cp.full_pending:
                 key = (dev, e.header.counter)
                 if key in self.noticed_full or (self.economy and gw in self.convicted):

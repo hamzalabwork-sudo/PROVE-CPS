@@ -81,3 +81,5 @@ class CheckpointMsg:
     conflicting: list = field(default_factory=list)  # gateway-signed receipts that contradict the device chain
     payloads: list = field(default_factory=list)     # (hash, bytes) of new FULL payloads: the second path (v2)
     full_pending: list = field(default_factory=list) # NoticeFullEvidence for FULL events unreceipted too long
+    headers: list = field(default_factory=list)      # Header of every event since the last checkpoint: the witness
+                                                     # keeps a copy, so a DIGEST event's header stays available

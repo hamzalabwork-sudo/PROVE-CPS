@@ -319,6 +319,10 @@ def score(rep, strat_name, P, led, store, auditor, gen, targets, A0, A1, attack_
         d = lambda t: None if t is None else t - ts  # noqa: E731
         rows.append({
             "dev": dev, "witnessed": dev in rep.witnessed, "full": full, "outcome": outcome, "payload_ok": payload_ok,
+            # the event's signed header is available in the replicated store: published by the gateway, or the
+            # copy an honest witness received with a checkpoint (v3)
+            "header_ok": (dev, c) in store.gateway_headers or (dev, c) in store.witness_headers,
+            "header_gw": (dev, c) in store.gateway_headers,
             "receipted": rc is not None and rc.counter >= c,  # a gateway-signed custody receipt exists for e
             "d_det": d(detected), "d_flag": d(flagged), "d_ch": d(t_ch), "d_alarm": d(t_alarm),
             "d_attr": d(t_conv), "d_cov": d(t_cov),
