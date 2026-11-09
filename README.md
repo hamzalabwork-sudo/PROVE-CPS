@@ -231,9 +231,14 @@ Each property has two configurations:
 - `*_ok.cfg` sets the parameter at the bound and should pass.
 - `*_tight.cfg` sets it one tick tighter and should produce a counterexample, which shows the bound cannot be improved in the model.
 
+The model also contains a griefing witness that may post a `NOTICE` for any head at any time. Without it the honest gateway would never be challenged, and non-frameability would hold trivially.
+
 ```bash
-java -cp tla2tools.jar tlc2.TLC -config formal/nonframe_ok.cfg formal/ProveCPS.tla
+# needs Java 11+; put the official tla2tools.jar (github.com/tlaplus/tlaplus releases) in formal/tools/
+formal/run_tlc.sh 16          # all six configurations -> formal/results/summary.txt
 ```
+
+[`results/summary.txt`](formal/results/summary.txt) holds the TLC verdicts, state counts and run times.
 
 ### `experiments/`
 
@@ -245,7 +250,7 @@ java -cp tla2tools.jar tlc2.TLC -config formal/nonframe_ok.cfg formal/ProveCPS.t
 | [`latency/cold_start.sh`](experiments/latency/cold_start.sh) | Inclusion delay on an on-demand chain after it has been idle. |
 | [`latency/summarize_v2.py`](experiments/latency/summarize_v2.py) | Per profile: p50, p99 and max of `Δ_L`, the share above 3 s, and the block-timestamp skew. |
 | [`run_v3.sh`](experiments/run_v3.sh) | The v3 campaign: headline matrix, robustness runs, and seeds 1–9. |
-| [`results/`](experiments/results) | Every trial log (`*.jsonl.gz`, one JSON object per trial), the latency CSVs, gas, the Pareto frontier, the policy sweep and the summaries. [`paper_numbers_v2.py`](experiments/results/paper_numbers_v2.py) recomputes every headline number from a matrix log. |
+| [`results/`](experiments/results) | Every trial log (`*.jsonl.gz`, one JSON object per trial), the latency CSVs, gas, the Pareto frontier, the policy sweep and the summaries. [`paper_numbers_v2.py`](experiments/results/paper_numbers_v2.py) recomputes the headline numbers from a matrix log. [`numbers_v3.py`](experiments/results/numbers_v3.py) computes the robustness results, the seed statistics and the bound checks over every trial. |
 
 ## 5. Experiments
 
@@ -268,19 +273,28 @@ java -cp tla2tools.jar tlc2.TLC -config formal/nonframe_ok.cfg formal/ProveCPS.t
   | `grief_v2` | 28 | Challenge flooding, with and without a bond |
   | `matrix_v3` | 1,404 | Headline matrix with the 2,000-sample delay profile |
   | `robust_v3` | 1,372 | Faulty and loaded ledgers; two witnesses with one corrupt; sweeps of `ν` and `δ` |
+  | `seeds_v3` | 7,020 | Seeds 1–9 of the 15 strict strategies, for confidence intervals |
+
+  The headline campaign is v3: 10,118 trials, including the v2 sweep and griefing runs. `matrix_v2` is kept for comparison; it replayed an earlier 50-sample delay profile.
 
 ## 6. Results
 
-These are the v2 results, from 1,726 trials with 0 harness errors.
+These are the v3 results, with 0 harness errors in every campaign. The numbers come from [`paper_numbers_v2.py`](experiments/results/paper_numbers_v2.py), which writes `paper_numbers_v3.json` when run on `matrix_v3`, and from [`numbers_v3.py`](experiments/results/numbers_v3.py), which writes `numbers_v3.json`.
 
 | Result | Value |
 |---|---|
 | Attribution, devices with a witness | Every suppressed event the policy requires was attributed, under A1–A9 |
-| Delay bounds | 292,492 detected and 244,929 attributed events all met their bounds. A9 came within **3.6 s** of the detection bound. |
+| Delay bounds | Across all strict trials (every seed and robustness run), 3,117,500 detected and 3,109,689 attributed events met their bounds. A9 came within **3.9 s** of the detection bound, and within 3.9–4.9 s across the ten seeds. |
+| Seeds | Over ten seeds every outcome count was identical; only delays moved, by at most 1 s |
 | `NOTICE-FULL` ablation (A8) | **v1:** 7,811 of 7,811 FULL payloads lost, no conviction. **v2:** 7,811 of 7,811 attributed. |
-| Equivocation (A5) | Proven in 52 of 52 trials |
+| Equivocation (A5) | Proven in 52 of 52 trials, within 13 s |
 | Devices without a witness | Flagged but never attributed, as witness necessity predicts |
-| Honest gateways | **0 convictions in 272 trials** (rule of three: below 1.1% at 95%). This includes real partitions and 107,919 challenges from a flooding witness. Honest trials saw 9,138 `NOTICE` and 882 `NOTICE-FULL` disputes dismissed and 841 `Late`. |
+| Faulty ledger (1 of 4 Besu validators stopped) | Bounds widen by 3.1 s; every required event was still attributed within them; A9 came within 4.0 s |
+| Loaded ledger | The 10.2 s stall widens the bounds by 7.3 s; everything was still attributed; A9 came within 3.2 s |
+| Two witnesses, one colluding | No outcome changed. With only the colluding witness, nothing was attributed. |
+| `ν` from 8 to 60 s | A9 stays within 4.9 s of the bound at every `ν` |
+| `δ` on the faulty ledger | Honest `Late` anchors in 14 trials: 316 at δ = 1 s, 124 at δ = 3 s, 0 at δ = 6 s. No conviction at any δ. |
+| Honest gateways | **0 convictions in 1,388 honest v3 trials** (rule of three: below 0.22% at 95%), including 680 with a 120 s partition. 107,919 challenges from a flooding witness also produced no conviction. |
 | Outage sweep | The predicted conviction boundary matches **294 of 294** verdicts |
 | Cost | `anchor` = 48,086 gas, within 0.7% of a plain Merkle-root anchor. **71% less gas** than fixed-interval Merkle batching at a 30 s FULL deadline, and 85% less at 10 s. |
 
@@ -321,9 +335,10 @@ anvil --port 8645 &  python prototype/tests/test_crypto_vs_contract.py
 
 ```bash
 gunzip -k experiments/results/*.jsonl.gz
-python prototype/analyze.py  experiments/results/matrix_v2.jsonl
-python prototype/tables.py   experiments/results/matrix_v2.jsonl
-(cd experiments/results && python paper_numbers_v2.py matrix_v2.jsonl)
+python prototype/analyze.py  experiments/results/matrix_v3.jsonl
+python prototype/tables.py   experiments/results/matrix_v3.jsonl
+(cd experiments/results && python paper_numbers_v2.py matrix_v3.jsonl > paper_numbers_v3.json \
+   && python numbers_v3.py matrix_v3.jsonl robust_v3.jsonl seeds_v3.jsonl > numbers_v3.json)
 python prototype/figs.py
 python experiments/latency/summarize_v2.py experiments/results/latency_v2/*.csv
 ```

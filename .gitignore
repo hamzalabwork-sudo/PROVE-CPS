@@ -40,3 +40,6 @@ paper/*.synctex.gz
 paper/
 research/
 design/
+
+# local backups (not versioned)
+backup/

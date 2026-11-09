@@ -1,7 +1,7 @@
 ---------------------------- MODULE ProveCPS ----------------------------
 (***************************************************************************)
 (* Discrete-time model of the PROVE-CPS dispute protocol for one device,   *)
-(* one gateway, one honest witness and the registry.                       *)
+(* one gateway, one honest witness, a griefing witness and the registry.   *)
 (*                                                                         *)
 (* Time is integer block time. Every transaction lands on the ledger       *)
 (* 1..DL ticks after it is sent (DL = worst-case inclusion delay). The     *)
@@ -100,6 +100,15 @@ Challenge(c, kind) ==
     /\ Send(kind, c, "none")
     /\ UNCHANGED <<now, n, genT, rcvd, rcD, cov, outS, outL, chal, conv>>
 
+\* ---------------------------------------------------------------- corrupt witness (griefing)
+\* A corrupt witness may post a NOTICE for any generated head at any time, e.g. while the honest gateway is in
+\* an outage. The registry opens it only if the head is not yet covered. (Enabled against an honest gateway;
+\* against a corrupt one it could only add challenges.)
+GriefNotice(c) ==
+    /\ HONEST /\ genT[c] # INF /\ ~Raised(c, "notice")
+    /\ Send("notice", c, "none")
+    /\ UNCHANGED <<now, n, genT, rcvd, rcD, cov, outS, outL, chal, conv>>
+
 \* ---------------------------------------------------------------- time and the registry
 Covering(c) == \E p \in pend : p.k \in {"anchor", "answer"} /\ p.c >= c
 AnchorDue == \E c \in 1..rcvd : cov[c] = INF /\ ~Covering(c) /\ now + DL >= rcD[c]
@@ -134,7 +143,7 @@ Next ==
     \/ Emit
     \/ \E k \in Ctr : Receipt(k) \/ Anchor(k)
     \/ \E ch \in chal : Answer(ch)
-    \/ \E c \in Ctr : Challenge(c, "custody") \/ Challenge(c, "notice")
+    \/ \E c \in Ctr : Challenge(c, "custody") \/ Challenge(c, "notice") \/ GriefNotice(c)
     \/ Tick
 
 Spec == Init /\ [][Next]_vars

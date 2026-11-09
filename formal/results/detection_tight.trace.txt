@@ -1,0 +1,173 @@
+TLC2 Version 2026.11.06.222357 (rev: d8fb231)
+Running breadth-first search Model-Checking with fp 101 and seed 9169131766711732857 with 16 workers on 28 cores with 5461MB heap and 64MB offheap memory [pid: 1489292] (Linux 6.8.0-138-generic amd64, Ubuntu 21.0.12.1 64bit, MSBDiskFPSet, DiskStateQueue).
+Parsing file ~/repo/formal/ProveCPS.tla
+Parsing file /tmp/tlc-17107168008578703071/Naturals.tla (jar:file:~/repo/formal/tools/tla2tools.jar!/tla2sany/StandardModules/Naturals.tla)
+Parsing file /tmp/tlc-17107168008578703071/FiniteSets.tla (jar:file:~/repo/formal/tools/tla2tools.jar!/tla2sany/StandardModules/FiniteSets.tla)
+Parsing file /tmp/tlc-17107168008578703071/_TLCTrace.tla (jar:file:~/repo/formal/tools/tla2tools.jar!/tla2sany/StandardModules/_TLCTrace.tla)
+Parsing file /tmp/tlc-17107168008578703071/Sequences.tla (jar:file:~/repo/formal/tools/tla2tools.jar!/tla2sany/StandardModules/Sequences.tla)
+Parsing file /tmp/tlc-17107168008578703071/TLC.tla (jar:file:~/repo/formal/tools/tla2tools.jar!/tla2sany/StandardModules/TLC.tla)
+Parsing file /tmp/tlc-17107168008578703071/TLCExt.tla (jar:file:~/repo/formal/tools/tla2tools.jar!/tla2sany/StandardModules/TLCExt.tla)
+Parsing file /tmp/tlc-17107168008578703071/Integers.tla (jar:file:~/repo/formal/tools/tla2tools.jar!/tla2sany/StandardModules/Integers.tla)
+Semantic processing of module Naturals
+Semantic processing of module Sequences
+Semantic processing of module FiniteSets
+Semantic processing of module TLC
+Semantic processing of module Integers
+Semantic processing of module TLCExt
+Semantic processing of module _TLCTrace
+Semantic processing of module ProveCPS
+Linting of module TLCExt
+Linting of module _TLCTrace
+Linting of module ProveCPS
+Starting... (2026-11-09 12:58:38)
+Computing initial states...
+Finished computing initial states: 1 distinct state generated at 2026-11-09 12:58:38.
+Error: Invariant Detection is violated.
+Error: The behavior up to this point is:
+State 1: <Initial predicate>
+/\ rcD = <<1000, 1000>>
+/\ outS = 1000
+/\ now = 0
+/\ conv = FALSE
+/\ n = 0
+/\ pend = {}
+/\ cov = <<1000, 1000>>
+/\ genT = <<1000, 1000>>
+/\ rcvd = 0
+/\ chal = {}
+/\ outL = 0
+
+State 2: <Tick line 123, col 5 to line 140, col 51 of module ProveCPS>
+/\ rcD = <<1000, 1000>>
+/\ outS = 1000
+/\ now = 1
+/\ conv = FALSE
+/\ n = 0
+/\ pend = {}
+/\ cov = <<1000, 1000>>
+/\ genT = <<1000, 1000>>
+/\ rcvd = 0
+/\ chal = {}
+/\ outL = 0
+
+State 3: <Emit line 67, col 5 to line 69, col 70 of module ProveCPS>
+/\ rcD = <<1000, 1000>>
+/\ outS = 1000
+/\ now = 1
+/\ conv = FALSE
+/\ n = 1
+/\ pend = {}
+/\ cov = <<1000, 1000>>
+/\ genT = <<1, 1000>>
+/\ rcvd = 0
+/\ chal = {}
+/\ outL = 0
+
+State 4: <Tick line 123, col 5 to line 140, col 51 of module ProveCPS>
+/\ rcD = <<1000, 1000>>
+/\ outS = 1000
+/\ now = 2
+/\ conv = FALSE
+/\ n = 1
+/\ pend = {}
+/\ cov = <<1000, 1000>>
+/\ genT = <<1, 1000>>
+/\ rcvd = 0
+/\ chal = {}
+/\ outL = 0
+
+State 5: <Tick line 123, col 5 to line 140, col 51 of module ProveCPS>
+/\ rcD = <<1000, 1000>>
+/\ outS = 1000
+/\ now = 3
+/\ conv = FALSE
+/\ n = 1
+/\ pend = {}
+/\ cov = <<1000, 1000>>
+/\ genT = <<1, 1000>>
+/\ rcvd = 0
+/\ chal = {}
+/\ outL = 0
+
+State 6: <Receipt(1) line 74, col 5 to line 77, col 68 of module ProveCPS>
+/\ rcD = <<5, 1000>>
+/\ outS = 1000
+/\ now = 3
+/\ conv = FALSE
+/\ n = 1
+/\ pend = {}
+/\ cov = <<1000, 1000>>
+/\ genT = <<1, 1000>>
+/\ rcvd = 1
+/\ chal = {}
+/\ outL = 0
+
+State 7: <Tick line 123, col 5 to line 140, col 51 of module ProveCPS>
+/\ rcD = <<5, 1000>>
+/\ outS = 1000
+/\ now = 4
+/\ conv = FALSE
+/\ n = 1
+/\ pend = {}
+/\ cov = <<1000, 1000>>
+/\ genT = <<1, 1000>>
+/\ rcvd = 1
+/\ chal = {}
+/\ outL = 0
+
+State 8: <Tick line 123, col 5 to line 140, col 51 of module ProveCPS>
+/\ rcD = <<5, 1000>>
+/\ outS = 1000
+/\ now = 5
+/\ conv = FALSE
+/\ n = 1
+/\ pend = {}
+/\ cov = <<1000, 1000>>
+/\ genT = <<1, 1000>>
+/\ rcvd = 1
+/\ chal = {}
+/\ outL = 0
+
+State 9: <Tick line 123, col 5 to line 140, col 51 of module ProveCPS>
+/\ rcD = <<5, 1000>>
+/\ outS = 1000
+/\ now = 6
+/\ conv = FALSE
+/\ n = 1
+/\ pend = {}
+/\ cov = <<1000, 1000>>
+/\ genT = <<1, 1000>>
+/\ rcvd = 1
+/\ chal = {}
+/\ outL = 0
+
+State 10: <Challenge(1,"custody") line 98, col 5 to line 101, col 73 of module ProveCPS>
+/\ rcD = <<5, 1000>>
+/\ outS = 1000
+/\ now = 6
+/\ conv = FALSE
+/\ n = 1
+/\ pend = {[c |-> 1, k |-> "custody", kind |-> "none", at |-> 8]}
+/\ cov = <<1000, 1000>>
+/\ genT = <<1, 1000>>
+/\ rcvd = 1
+/\ chal = {}
+/\ outL = 0
+
+State 11: <Tick line 123, col 5 to line 140, col 51 of module ProveCPS>
+/\ rcD = <<5, 1000>>
+/\ outS = 1000
+/\ now = 7
+/\ conv = FALSE
+/\ n = 1
+/\ pend = {[c |-> 1, k |-> "custody", kind |-> "none", at |-> 8]}
+/\ cov = <<1000, 1000>>
+/\ genT = <<1, 1000>>
+/\ rcvd = 1
+/\ chal = {}
+/\ outL = 0
+
+22877 states generated, 10062 distinct states found, 5647 states left on queue.
+The depth of the complete state graph search is 13.
+Finished in 01s at (2026-11-09 12:58:39)
+Trace exploration spec path: ./ProveCPS_TTrace_1794196718.tla
