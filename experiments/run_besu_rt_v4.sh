@@ -31,8 +31,13 @@ if [ "$START" -le 2 ]; then
     lanes "0:honest:test2/13:cut=120" "1:A3:test2/13:" "2:A8:test2/24:" "3:A9:test2/2:"
     netem4 del dev eth0 root
     NOTE=""
-    sleep 30   # validator 4 catches up
+    # After a long isolation Besu does not re-peer by itself: restart validator 4 and let it catch up (the next
+    # phase refuses to start while any validator is more than three blocks behind).
+    docker restart besu-node4 >> $LOG 2>&1
+    sleep 90
 fi
 echo "$(date '+%F %T') phase 3" >> $LOG
-lanes "0:honest:test1/11:cut=360" "1:A4:test1/9:" "2:A2:test2/24:"
+lanes "0:honest:test1/11:cut=360" "1:A4:test1/9:" "2:A2:test2/24:" "3:A8:test1/9:" "4:A2:test2/4:"
+# (test2/24 has no FULL event on a witnessed target, so A8 there in phase 2 and A2 there are covered-only controls;
+#  test1/9 and test2/4 exercise NOTICE-FULL and AVAILABILITY.)
 echo "$(date '+%F %T') BESU_RT_V4_DONE" >> $LOG

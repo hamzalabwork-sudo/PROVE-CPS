@@ -295,7 +295,12 @@ The `*_tight` counterexamples are in `results/*_tight.trace.txt`, and the full l
   | `robust_v3` | 1,372 | Faulty and loaded ledgers; two witnesses with one corrupt; sweeps of `ν` and `δ` |
   | `seeds_v3` | 7,020 | Seeds 1–9 of the 15 strict strategies, for confidence intervals |
 
-  The headline campaign is v3: 10,118 trials, including the v2 sweep and griefing runs. `matrix_v2` is kept for comparison; it replayed an earlier 50-sample delay profile.
+  | `ablation_v4` | 416 | One mechanism removed at a time (receipts, NOTICE, committed policy, device deadline check) |
+  | `crash_v4` | 156 | Honest gateway crashes for 30, 120 or 240 s and loses all local state |
+  | `besu_rt_v4` | 13 | Real time on the Besu testbed: uplink cuts with `netem`, validator 4 isolated, a cut longer than `W` |
+  | `notice_storm_v4` | 4 | Mass partition on Besu: one NOTICE per device for 1,000 to 10,000 devices, then every answer |
+
+  In total the simulated campaigns hold 10,690 trials: v3 (10,118, including the v2 sweep and griefing runs) plus the v4 ablation and crash runs. `matrix_v2` is kept for comparison; it replayed an earlier 50-sample delay profile.
 
 ## 6. Results
 
@@ -326,6 +331,54 @@ Measured ledger inclusion delay `Δ_L` (p50 / p99 / max):
 | Besu QBFT, idle | 1.78 s | 1.85 s | 2.73 s |
 | Besu QBFT, under load | 1.75 s | 1.84 s | 10.2 s (one transaction-pool stall) |
 | Besu QBFT, 1 of 4 validators stopped | 1.81 s | 5.84 s | 5.96 s |
+
+**v4 results** ([`numbers_v4.py`](experiments/results/numbers_v4.py) → `numbers_v4.json`). Component ablation, strict witness, witnessed devices, 52 attacks per row:
+
+| Mechanism removed | Attack | Without it | With it |
+|---|---|---|---|
+| On-chain NOTICE | A3, A7 | 0 of 55,374 events attributed (each) | all attributed |
+| On-chain NOTICE | A8 | 0 of 7,811 FULL events attributed | all attributed |
+| Committed policy | A2, A4, A8 | 0 of 7,811 FULL events attributed; the payloads are lost | all attributed |
+| Device deadline check | A9 stretching deadlines by 600 s | 42,907 of 55,374 events detected after the bound, by up to 592 s | all within the bound |
+| Custody receipts | honest gateway | 180,069 disputes, 381× the transactions, 761× the gas; device buffers grow to 3,308 events | 0 disputes |
+
+(In 14 of the A7 runs without NOTICE, the gateway was still convicted, for receipted events from *before* the attack that it stopped answering; none of the suppressed events was attributed.)
+
+**Gateway crash with state loss** (156 trials). The honest gateway crashes at the start of the attack window and restarts with no local state. It was never convicted, every event was covered, and on restart it answered every challenge still open (755, 10,720 and 26,731 for 30, 120 and 240 s crashes). A 120 s crash gave exactly the verdicts of a 120 s partition: 10,860 challenges, 10,020 dismissed, 840 `Late`.
+
+**Real time on Besu** (`besu_rt_v4.jsonl`, 13 trials at 1× speed, every party on its own RPC endpoint):
+
+| Scenario | Outcome |
+|---|---|
+| Honest gateway, uplink cut for 120 s with `netem` (healthy chain; and with validator 4 isolated) | Its view of the chain froze during the cut. Afterwards it answered all 403 notices (243 + 160), all dismissed, no conviction. |
+| A7 (stonewall timed to the cut), A1, A9 | Convicted; every required event attributed within its bound. A9 came within 5.0 s of the detection bound. |
+| A3, A9, honest, with validator 4 isolated (f = 1 of 4) | `Δ_L` up to 6 s (up to 14 s for two transactions); every required event attributed within the bounds evaluated at that `Δ_L` |
+| A2, A4, A8 on windows with witnessed FULL events | 77, 42 and 42 FULL events attributed (AVAILABILITY, AVAILABILITY, NOTICE-FULL) |
+| Honest gateway, uplink cut for 360 s (> `W`) | Convicted, as the outage theorem requires |
+
+In total, 1,610 of 1,610 required events were attributed. On the healthy chain `Δ_L` was at most 2.2 s, and the event loop never ran more than 1.7 s behind the wall clock.
+
+**NOTICE storm** (`notice_storm_v4.jsonl`, live Besu). A gateway serving `n` devices is cut off for 120 s. Eight witness accounts post one NOTICE per device, then the gateway reconnects and answers them all:
+
+| n | Answer mode | All notices in | All answers in | Latest answer after its notice | Answers after `W` | `Δ_L` max |
+|---|---|---|---|---|---|---|
+| 1,000 | `anchorAndRespond` | 23 s | 22 s | 132 s | 0 | 2.7 s |
+| 5,000 | `anchorAndRespond` | 104 s | 91 s | 134 s | 0 | 2.5 s |
+| 10,000 | `anchorAndRespond` | 187 s | 196 s | 214 s | 0 | 3.0 s |
+| 10,000 | one batch + 8 helper accounts (`respondCoverage`) | 189 s | 176 s | 193 s | 0 | 6.0 s |
+
+A NOTICE costs about 114 k gas; an answer 94 k (`anchorAndRespond`) or 81 k (`respondCoverage` from a batch). Blocks carried up to 429 registry transactions (49 M gas). No transaction failed.
+
+**Equal-guarantee cost** (`cost_sweep_v4.json`, both test splits). At the same per-class deadlines, PROVE-CPS uses 16% less gas than two-tier Merkle batching (B7), because one batch also takes every pending DIGEST head; B7 also cannot tell a demoted critical event from a routine one. The saving over fixed-interval Merkle batching comes from selectivity:
+
+| FULL share | Saving vs B3 |
+|---|---|
+| 0.52% (committed policy) | 72% |
+| 2.0% (zero-margin envelope) | 21% |
+| 5.4% (envelope −5%) | 8% |
+| 0.5% / 2% / 20%, spread at random | 35% / 12% / 3% |
+
+PROVE-CPS was never more expensive than B3.
 
 **Policy trade-off** (`policy_sweep.json`). The default policy marks FULL any reading 5% outside the commissioning envelope or any step of 90% of it. Under that policy, a FULL event falls on a witnessed target device in 27 of the 52 attack windows. A zero-margin policy covers 52 of 52 windows, but its gas saving drops from 72% to 21%. Every DIGEST event's *existence* is protected under any policy.
 
@@ -399,6 +452,18 @@ docker compose down
 ```
 
 Validators run with `NET_ADMIN`, so experiments can inject delay, loss and partitions with `tc` from inside a container.
+
+The Besu image has no `tc`, so faults come from a small helper image, [`testbed/netem/`](testbed/netem/Dockerfile): alpine with `iproute2` and `socat`.
+
+```bash
+docker build -t provecps-netem:1 testbed/netem
+# isolate validator 4 (a sidecar shares its network namespace); `del` instead of `add ... loss 100%` heals it
+docker run --rm --net container:besu-node4 --cap-add NET_ADMIN provecps-netem:1 tc qdisc add dev eth0 root netem loss 100%
+experiments/run_besu_rt_v4.sh          # the three real-time phases (about 75 min)
+python experiments/latency/notice_storm.py --n 10000 --mode a2r --out experiments/results/notice_storm_v4.jsonl
+```
+
+`run_besu_rt.py` starts one relay container per lane (`gw-uplink-<lane>`, socat to validator 1), and the gateway reaches the chain only through it. Running `tc netem loss 100%` inside the relay therefore cuts the gateway's uplink for real. Before each run it checks that the validators are within three blocks of each other, because a stalled validator would skew `Δ_L`.
 
 [`besu.vars`](testbed/besu/besu.vars) contains only the **well-known public Anvil development keys**, which are funded only in this private genesis. Never use them on a public network. For any other network, put the keys in a git-ignored `.env` file and pass it to `deploy.sh`. A vars file defines `RPC`, `RESPONSE_WINDOW`, `ADMIN_KEY`, `GATEWAY_KEY`, `GATEWAY_ADDR` and `DEVICE_ADDR`.
 
