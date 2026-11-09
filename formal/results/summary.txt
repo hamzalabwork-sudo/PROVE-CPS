@@ -5,3 +5,4 @@ attribution_tight VIOLATED 227059 distinct states found 3s
 detection_ok HOLDS 107892998 distinct states found 1520s
 attribution_ok HOLDS 558177221 distinct states found 7200s
 TLC_DONE
+attribution_ok(fp 17) HOLDS 558177221 distinct states found 3140s

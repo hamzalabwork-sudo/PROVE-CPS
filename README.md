@@ -249,7 +249,7 @@ formal/run_tlc.sh 16          # all six configurations -> formal/results/summary
 | `attribution_ok` | holds | 558,177,221 | 2 h |
 | `attribution_tight` | counterexample | 227,059 | 3 s |
 
-The `*_tight` counterexamples are in `results/*_tight.trace.txt`, and the full logs of the passing runs are in `results/*_ok.log.txt`. TLC estimates the probability that a fingerprint collision hid a state at 1.9e-4 for `detection_ok` and 0.08 for `attribution_ok`. Rerunning with another fingerprint function (`-fp`) makes the two estimates multiply.
+The `*_tight` counterexamples are in `results/*_tight.trace.txt`, and the full logs of the passing runs are in `results/*_ok.log.txt`. TLC estimates the probability that a fingerprint collision hid a state at 1.9e-4 for `detection_ok` and 0.08 for `attribution_ok`. We therefore reran `attribution_ok` with a second, independent fingerprint function (`rerun_fp.sh attribution_ok 17`). It found the same 558,177,221 states with no error, at an estimated collision probability of 0.008, so the probability that both runs missed a state is below 1e-3.
 
 ### `experiments/`
 
