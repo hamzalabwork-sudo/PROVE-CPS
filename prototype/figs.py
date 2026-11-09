@@ -36,7 +36,7 @@ def pareto():
         ("B2 per-event hash", g("B2"), SERIES[2], None, "-."),
         ("B1 full on-chain log", g("B1"), SERIES[3], None, ":"),
     ]
-    fig, ax = plt.subplots(figsize=(3.45, 1.7))
+    fig, ax = plt.subplots(figsize=(3.45, 1.45))
     ax.grid(True, which="major", color=GRID, linewidth=0.5)
     ax.set_axisbelow(True)
     for label, ys, c, m, ls in series:
@@ -82,7 +82,7 @@ def frame():
         g[(P["W"], P["O"])].append((x, r["gateway_convicted"]))
         n += 1
         agree += (x > 0) == bool(r["gateway_convicted"])
-    fig, ax = plt.subplots(figsize=(3.45, 1.5))
+    fig, ax = plt.subplots(figsize=(3.45, 1.28))
     ax.grid(True, color=GRID, linewidth=0.5)
     ax.set_axisbelow(True)
     for (W, c, m, ls, lw, ms) in ((120, SERIES[0], "o", "-", 3.2, 5.2), (300, SERIES[1], "s", "--", 1.4, 3.0)):

@@ -1,0 +1,1039 @@
+{
+ "errors": 0,
+ "robust": {
+  "A1|ledger=besu-fault": {
+   "trials": 52,
+   "convicted": 52,
+   "required": 55374,
+   "attributed": 55374,
+   "witnessed_outcomes": {
+    "attributed": 55374
+   },
+   "det_within": "55374/55374",
+   "attr_within": "55374/55374",
+   "det_max": 317,
+   "min_slack_det": 21.96,
+   "min_slack_attr": 22.92,
+   "bound_d_full": 68.96
+  },
+  "A1|ledger=besu-fault,safety=1.0": {
+   "trials": 14,
+   "convicted": 14,
+   "required": 13860,
+   "attributed": 13860,
+   "witnessed_outcomes": {
+    "attributed": 13860
+   },
+   "det_within": "13860/13860",
+   "attr_within": "13860/13860",
+   "det_max": 317,
+   "min_slack_det": 21.96,
+   "min_slack_attr": 22.92,
+   "bound_d_full": 68.96
+  },
+  "A1|ledger=besu-fault,safety=6.0": {
+   "trials": 14,
+   "convicted": 14,
+   "required": 13860,
+   "attributed": 13860,
+   "witnessed_outcomes": {
+    "attributed": 13860
+   },
+   "det_within": "13860/13860",
+   "attr_within": "13860/13860",
+   "det_max": 317,
+   "min_slack_det": 21.96,
+   "min_slack_attr": 22.92,
+   "bound_d_full": 68.96
+  },
+  "A1|ledger=besu-load": {
+   "trials": 52,
+   "convicted": 52,
+   "required": 55374,
+   "attributed": 55374,
+   "witnessed_outcomes": {
+    "attributed": 55374
+   },
+   "det_within": "55374/55374",
+   "attr_within": "55374/55374",
+   "det_max": 322,
+   "min_slack_det": 21.224,
+   "min_slack_attr": 30.448,
+   "bound_d_full": 73.224
+  },
+  "A1|witnesses=1,silent_witnesses=1": {
+   "trials": 52,
+   "convicted": 0,
+   "required": 55374,
+   "attributed": 0,
+   "witnessed_outcomes": {
+    "flagged-unattributed": 55374
+   },
+   "det_within": "0/0",
+   "attr_within": "0/0",
+   "det_max": null,
+   "min_slack_det": null,
+   "min_slack_attr": null,
+   "bound_d_full": 65.88900000000001
+  },
+  "A1|witnesses=2,silent_witnesses=1": {
+   "trials": 52,
+   "convicted": 52,
+   "required": 55374,
+   "attributed": 55374,
+   "witnessed_outcomes": {
+    "attributed": 55374
+   },
+   "det_within": "55374/55374",
+   "attr_within": "55374/55374",
+   "det_max": 314,
+   "min_slack_det": 21.889,
+   "min_slack_attr": 23.778,
+   "bound_d_full": 65.88900000000001
+  },
+  "A3|ledger=besu-fault": {
+   "trials": 52,
+   "convicted": 52,
+   "required": 55374,
+   "attributed": 55374,
+   "witnessed_outcomes": {
+    "attributed": 55374
+   },
+   "det_within": "55374/55374",
+   "attr_within": "55374/55374",
+   "det_max": 31,
+   "min_slack_det": 40.96,
+   "min_slack_attr": 41.92,
+   "bound_d_full": 68.96
+  },
+  "A3|notice_after=10": {
+   "trials": 14,
+   "convicted": 14,
+   "required": 13860,
+   "attributed": 13860,
+   "witnessed_outcomes": {
+    "attributed": 13860
+   },
+   "det_within": "13860/13860",
+   "attr_within": "13860/13860",
+   "det_max": 22,
+   "min_slack_det": 46.889,
+   "min_slack_attr": 48.778,
+   "bound_d_full": 60.889
+  },
+  "A3|notice_after=30": {
+   "trials": 14,
+   "convicted": 14,
+   "required": 13860,
+   "attributed": 13860,
+   "witnessed_outcomes": {
+    "attributed": 13860
+   },
+   "det_within": "13860/13860",
+   "attr_within": "13860/13860",
+   "det_max": 42,
+   "min_slack_det": 46.889,
+   "min_slack_attr": 48.778,
+   "bound_d_full": 80.889
+  },
+  "A3|notice_after=60": {
+   "trials": 14,
+   "convicted": 14,
+   "required": 13860,
+   "attributed": 13860,
+   "witnessed_outcomes": {
+    "attributed": 13860
+   },
+   "det_within": "13860/13860",
+   "attr_within": "13860/13860",
+   "det_max": 72,
+   "min_slack_det": 46.889,
+   "min_slack_attr": 48.778,
+   "bound_d_full": 110.889
+  },
+  "A3|notice_after=8": {
+   "trials": 14,
+   "convicted": 14,
+   "required": 13860,
+   "attributed": 13860,
+   "witnessed_outcomes": {
+    "attributed": 13860
+   },
+   "det_within": "13860/13860",
+   "attr_within": "13860/13860",
+   "det_max": 20,
+   "min_slack_det": 46.889,
+   "min_slack_attr": 47.778,
+   "bound_d_full": 58.889
+  },
+  "A3|witnesses=1,silent_witnesses=1": {
+   "trials": 52,
+   "convicted": 0,
+   "required": 55374,
+   "attributed": 0,
+   "witnessed_outcomes": {
+    "flagged-unattributed": 55374
+   },
+   "det_within": "0/0",
+   "attr_within": "0/0",
+   "det_max": null,
+   "min_slack_det": null,
+   "min_slack_attr": null,
+   "bound_d_full": 65.88900000000001
+  },
+  "A3|witnesses=2,silent_witnesses=1": {
+   "trials": 52,
+   "convicted": 52,
+   "required": 55374,
+   "attributed": 55374,
+   "witnessed_outcomes": {
+    "attributed": 55374
+   },
+   "det_within": "55374/55374",
+   "attr_within": "55374/55374",
+   "det_max": 28,
+   "min_slack_det": 41.889,
+   "min_slack_attr": 43.778,
+   "bound_d_full": 65.88900000000001
+  },
+  "A4|witnesses=1,silent_witnesses=1": {
+   "trials": 52,
+   "convicted": 0,
+   "required": 7811,
+   "attributed": 0,
+   "witnessed_outcomes": {
+    "payload-lost": 7811
+   },
+   "det_within": "7811/7811",
+   "attr_within": "0/0",
+   "det_max": 30,
+   "min_slack_det": 35.889,
+   "min_slack_attr": null,
+   "bound_d_full": 65.88900000000001
+  },
+  "A4|witnesses=2,silent_witnesses=1": {
+   "trials": 52,
+   "convicted": 27,
+   "required": 7811,
+   "attributed": 7811,
+   "witnessed_outcomes": {
+    "attributed": 7811
+   },
+   "det_within": "7811/7811",
+   "attr_within": "7811/7811",
+   "det_max": 30,
+   "min_slack_det": 35.889,
+   "min_slack_attr": 32.778,
+   "bound_d_full": 65.88900000000001
+  },
+  "A7|ledger=besu-fault": {
+   "trials": 52,
+   "convicted": 52,
+   "required": 55374,
+   "attributed": 55374,
+   "witnessed_outcomes": {
+    "attributed": 55374
+   },
+   "det_within": "55374/55374",
+   "attr_within": "55374/55374",
+   "det_max": 31,
+   "min_slack_det": 40.96,
+   "min_slack_attr": 41.92,
+   "bound_d_full": 68.96
+  },
+  "A8|ledger=besu-fault": {
+   "trials": 52,
+   "convicted": 40,
+   "required": 7811,
+   "attributed": 7811,
+   "witnessed_outcomes": {
+    "covered": 36067,
+    "attributed": 19307
+   },
+   "det_within": "7811/7811",
+   "attr_within": "7811/7811",
+   "det_max": 28,
+   "min_slack_det": 40.96,
+   "min_slack_attr": 38.92,
+   "bound_d_full": 68.96
+  },
+  "A8|witnesses=1,silent_witnesses=1": {
+   "trials": 52,
+   "convicted": 0,
+   "required": 7811,
+   "attributed": 0,
+   "witnessed_outcomes": {
+    "flagged-unattributed": 55374
+   },
+   "det_within": "0/0",
+   "attr_within": "0/0",
+   "det_max": null,
+   "min_slack_det": null,
+   "min_slack_attr": null,
+   "bound_d_full": 65.88900000000001
+  },
+  "A8|witnesses=2,silent_witnesses=1": {
+   "trials": 52,
+   "convicted": 40,
+   "required": 7811,
+   "attributed": 7811,
+   "witnessed_outcomes": {
+    "covered": 36067,
+    "attributed": 19307
+   },
+   "det_within": "7811/7811",
+   "attr_within": "7811/7811",
+   "det_max": 24,
+   "min_slack_det": 41.889,
+   "min_slack_attr": 40.778,
+   "bound_d_full": 65.88900000000001
+  },
+  "A9|ledger=besu-fault": {
+   "trials": 52,
+   "convicted": 52,
+   "required": 55374,
+   "attributed": 55374,
+   "witnessed_outcomes": {
+    "attributed": 55374
+   },
+   "det_within": "55374/55374",
+   "attr_within": "55374/55374",
+   "det_max": 335,
+   "min_slack_det": 3.96,
+   "min_slack_attr": 4.92,
+   "bound_d_full": 68.96
+  },
+  "A9|ledger=besu-load": {
+   "trials": 52,
+   "convicted": 52,
+   "required": 55374,
+   "attributed": 55374,
+   "witnessed_outcomes": {
+    "attributed": 55374
+   },
+   "det_within": "55374/55374",
+   "attr_within": "55374/55374",
+   "det_max": 340,
+   "min_slack_det": 3.224,
+   "min_slack_attr": 12.448,
+   "bound_d_full": 73.224
+  },
+  "A9|notice_after=10": {
+   "trials": 14,
+   "convicted": 14,
+   "required": 13860,
+   "attributed": 13860,
+   "witnessed_outcomes": {
+    "attributed": 13860
+   },
+   "det_within": "13860/13860",
+   "attr_within": "13860/13860",
+   "det_max": 326,
+   "min_slack_det": 4.889,
+   "min_slack_attr": 6.778,
+   "bound_d_full": 60.889
+  },
+  "A9|notice_after=30": {
+   "trials": 14,
+   "convicted": 14,
+   "required": 13860,
+   "attributed": 13860,
+   "witnessed_outcomes": {
+    "attributed": 13860
+   },
+   "det_within": "13860/13860",
+   "attr_within": "13860/13860",
+   "det_max": 346,
+   "min_slack_det": 4.889,
+   "min_slack_attr": 6.778,
+   "bound_d_full": 80.889
+  },
+  "A9|notice_after=60": {
+   "trials": 14,
+   "convicted": 14,
+   "required": 13860,
+   "attributed": 13860,
+   "witnessed_outcomes": {
+    "attributed": 13860
+   },
+   "det_within": "13860/13860",
+   "attr_within": "13860/13860",
+   "det_max": 376,
+   "min_slack_det": 4.889,
+   "min_slack_attr": 5.778,
+   "bound_d_full": 110.889
+  },
+  "A9|notice_after=8": {
+   "trials": 14,
+   "convicted": 14,
+   "required": 13860,
+   "attributed": 13860,
+   "witnessed_outcomes": {
+    "attributed": 13860
+   },
+   "det_within": "13860/13860",
+   "attr_within": "13860/13860",
+   "det_max": 324,
+   "min_slack_det": 4.889,
+   "min_slack_attr": 5.778,
+   "bound_d_full": 58.889
+  },
+  "A9|witnesses=1,silent_witnesses=1": {
+   "trials": 52,
+   "convicted": 0,
+   "required": 55374,
+   "attributed": 0,
+   "witnessed_outcomes": {
+    "flagged-unattributed": 55374
+   },
+   "det_within": "0/0",
+   "attr_within": "0/0",
+   "det_max": null,
+   "min_slack_det": null,
+   "min_slack_attr": null,
+   "bound_d_full": 65.88900000000001
+  },
+  "A9|witnesses=2,silent_witnesses=1": {
+   "trials": 52,
+   "convicted": 52,
+   "required": 55374,
+   "attributed": 55374,
+   "witnessed_outcomes": {
+    "attributed": 55374
+   },
+   "det_within": "55374/55374",
+   "attr_within": "55374/55374",
+   "det_max": 332,
+   "min_slack_det": 3.889,
+   "min_slack_attr": 5.778,
+   "bound_d_full": 65.88900000000001
+  },
+  "honest|ledger=besu-fault": {
+   "trials": 52,
+   "convicted": 0,
+   "required": 7811,
+   "attributed": 0,
+   "witnessed_outcomes": {
+    "covered": 35163,
+    "late": 20211
+   },
+   "det_within": "7811/7811",
+   "attr_within": "0/0",
+   "det_max": 34,
+   "min_slack_det": 34.96,
+   "min_slack_attr": null,
+   "bound_d_full": 68.96,
+   "challenges": {
+    "custody": 695
+   },
+   "resolutions": {
+    "late": 691
+   }
+  },
+  "honest|ledger=besu-fault,safety=1.0": {
+   "trials": 14,
+   "convicted": 0,
+   "required": 1031,
+   "attributed": 0,
+   "witnessed_outcomes": {
+    "covered": 8572,
+    "late": 5288
+   },
+   "det_within": "1031/1031",
+   "attr_within": "0/0",
+   "det_max": 36,
+   "min_slack_det": 32.96,
+   "min_slack_attr": null,
+   "bound_d_full": 68.96,
+   "challenges": {
+    "custody": 316
+   },
+   "resolutions": {
+    "late": 316
+   }
+  },
+  "honest|ledger=besu-fault,safety=6.0": {
+   "trials": 14,
+   "convicted": 0,
+   "required": 1031,
+   "attributed": 0,
+   "witnessed_outcomes": {
+    "covered": 13860
+   },
+   "det_within": "1031/1031",
+   "attr_within": "0/0",
+   "det_max": 31,
+   "min_slack_det": 37.96,
+   "min_slack_attr": null,
+   "bound_d_full": 68.96,
+   "challenges": {},
+   "resolutions": {}
+  },
+  "honest|ledger=besu-load": {
+   "trials": 52,
+   "convicted": 0,
+   "required": 7811,
+   "attributed": 0,
+   "witnessed_outcomes": {
+    "covered": 55374
+   },
+   "det_within": "7811/7811",
+   "attr_within": "0/0",
+   "det_max": 30,
+   "min_slack_det": 43.224,
+   "min_slack_attr": null,
+   "bound_d_full": 73.224,
+   "challenges": {},
+   "resolutions": {}
+  },
+  "honest|notice_after=10": {
+   "trials": 14,
+   "convicted": 0,
+   "required": 1031,
+   "attributed": 0,
+   "witnessed_outcomes": {
+    "covered": 13860
+   },
+   "det_within": "1031/1031",
+   "attr_within": "0/0",
+   "det_max": 30,
+   "min_slack_det": 30.889,
+   "min_slack_attr": null,
+   "bound_d_full": 60.889,
+   "challenges": {},
+   "resolutions": {}
+  },
+  "honest|notice_after=30": {
+   "trials": 14,
+   "convicted": 0,
+   "required": 1031,
+   "attributed": 0,
+   "witnessed_outcomes": {
+    "covered": 13860
+   },
+   "det_within": "1031/1031",
+   "attr_within": "0/0",
+   "det_max": 30,
+   "min_slack_det": 50.889,
+   "min_slack_attr": null,
+   "bound_d_full": 80.889,
+   "challenges": {},
+   "resolutions": {}
+  },
+  "honest|notice_after=60": {
+   "trials": 14,
+   "convicted": 0,
+   "required": 1031,
+   "attributed": 0,
+   "witnessed_outcomes": {
+    "covered": 13860
+   },
+   "det_within": "1031/1031",
+   "attr_within": "0/0",
+   "det_max": 30,
+   "min_slack_det": 80.889,
+   "min_slack_attr": null,
+   "bound_d_full": 110.889,
+   "challenges": {},
+   "resolutions": {}
+  },
+  "honest|notice_after=8": {
+   "trials": 14,
+   "convicted": 0,
+   "required": 1031,
+   "attributed": 0,
+   "witnessed_outcomes": {
+    "covered": 13860
+   },
+   "det_within": "1031/1031",
+   "attr_within": "0/0",
+   "det_max": 30,
+   "min_slack_det": 28.889,
+   "min_slack_attr": null,
+   "bound_d_full": 58.889,
+   "challenges": {},
+   "resolutions": {}
+  },
+  "honest-partition|ledger=besu-fault": {
+   "trials": 52,
+   "convicted": 0,
+   "required": 7811,
+   "attributed": 0,
+   "witnessed_outcomes": {
+    "covered": 35690,
+    "late": 19684
+   },
+   "det_within": "7811/7811",
+   "attr_within": "0/0",
+   "det_max": 43,
+   "min_slack_det": 25.96,
+   "min_slack_attr": null,
+   "bound_d_full": 68.96,
+   "challenges": {
+    "custody": 1577,
+    "notice": 9138,
+    "notice_full": 882
+   },
+   "resolutions": {
+    "dismissed": 10020,
+    "late": 1576
+   }
+  },
+  "honest-partition|ledger=besu-load": {
+   "trials": 52,
+   "convicted": 0,
+   "required": 7811,
+   "attributed": 0,
+   "witnessed_outcomes": {
+    "covered": 55290,
+    "late": 84
+   },
+   "det_within": "7811/7811",
+   "attr_within": "0/0",
+   "det_max": 39,
+   "min_slack_det": 34.224,
+   "min_slack_attr": null,
+   "bound_d_full": 73.224,
+   "challenges": {
+    "notice": 9138,
+    "notice_full": 882,
+    "custody": 843
+   },
+   "resolutions": {
+    "dismissed": 10020,
+    "late": 843
+   }
+  },
+  "honest-partition|notice_after=10": {
+   "trials": 14,
+   "convicted": 0,
+   "required": 1031,
+   "attributed": 0,
+   "witnessed_outcomes": {
+    "covered": 13860
+   },
+   "det_within": "1031/1031",
+   "attr_within": "0/0",
+   "det_max": 39,
+   "min_slack_det": 21.889,
+   "min_slack_attr": null,
+   "bound_d_full": 60.889,
+   "challenges": {
+    "notice": 2505,
+    "notice_full": 548,
+    "custody": 306
+   },
+   "resolutions": {
+    "dismissed": 3053,
+    "late": 306
+   }
+  },
+  "honest-partition|notice_after=30": {
+   "trials": 14,
+   "convicted": 0,
+   "required": 1031,
+   "attributed": 0,
+   "witnessed_outcomes": {
+    "covered": 13860
+   },
+   "det_within": "1031/1031",
+   "attr_within": "0/0",
+   "det_max": 39,
+   "min_slack_det": 41.889,
+   "min_slack_attr": null,
+   "bound_d_full": 80.889,
+   "challenges": {
+    "notice": 2085,
+    "notice_full": 465,
+    "custody": 306
+   },
+   "resolutions": {
+    "dismissed": 2550,
+    "late": 306
+   }
+  },
+  "honest-partition|notice_after=60": {
+   "trials": 14,
+   "convicted": 0,
+   "required": 1031,
+   "attributed": 0,
+   "witnessed_outcomes": {
+    "covered": 13860
+   },
+   "det_within": "1031/1031",
+   "attr_within": "0/0",
+   "det_max": 64,
+   "min_slack_det": 46.889,
+   "min_slack_attr": null,
+   "bound_d_full": 110.889,
+   "challenges": {
+    "notice": 1280,
+    "custody": 306,
+    "notice_full": 228
+   },
+   "resolutions": {
+    "dismissed": 1508,
+    "late": 306
+   }
+  },
+  "honest-partition|notice_after=8": {
+   "trials": 14,
+   "convicted": 0,
+   "required": 1031,
+   "attributed": 0,
+   "witnessed_outcomes": {
+    "covered": 13860
+   },
+   "det_within": "1031/1031",
+   "attr_within": "0/0",
+   "det_max": 40,
+   "min_slack_det": 18.889,
+   "min_slack_attr": null,
+   "bound_d_full": 58.889,
+   "challenges": {
+    "notice": 2579,
+    "notice_full": 557,
+    "custody": 306
+   },
+   "resolutions": {
+    "dismissed": 3136,
+    "late": 306
+   }
+  }
+ },
+ "seeds": {
+  "A1.attr_rate": {
+   "n": 10,
+   "mean": 1.0,
+   "half": 0.0,
+   "min": 1.0,
+   "max": 1.0
+  },
+  "A1.convicted": {
+   "n": 10,
+   "mean": 52,
+   "half": 0.0,
+   "min": 52,
+   "max": 52
+  },
+  "A1.det_max": {
+   "n": 10,
+   "mean": 313.6,
+   "half": 0.3694,
+   "min": 313,
+   "max": 314
+  },
+  "A1.min_slack_det": {
+   "n": 10,
+   "mean": 22.289,
+   "half": 0.3694,
+   "min": 21.889,
+   "max": 22.889
+  },
+  "A2.attr_rate": {
+   "n": 10,
+   "mean": 1.0,
+   "half": 0.0,
+   "min": 1.0,
+   "max": 1.0
+  },
+  "A2.convicted": {
+   "n": 10,
+   "mean": 27,
+   "half": 0.0,
+   "min": 27,
+   "max": 27
+  },
+  "A2.det_max": {
+   "n": 10,
+   "mean": 30.1,
+   "half": 0.2262,
+   "min": 30,
+   "max": 31
+  },
+  "A2.min_slack_det": {
+   "n": 10,
+   "mean": 35.789,
+   "half": 0.2262,
+   "min": 34.889,
+   "max": 35.889
+  },
+  "A3.attr_rate": {
+   "n": 10,
+   "mean": 1.0,
+   "half": 0.0,
+   "min": 1.0,
+   "max": 1.0
+  },
+  "A3.convicted": {
+   "n": 10,
+   "mean": 52,
+   "half": 0.0,
+   "min": 52,
+   "max": 52
+  },
+  "A3.det_max": {
+   "n": 10,
+   "mean": 27.6,
+   "half": 0.3694,
+   "min": 27,
+   "max": 28
+  },
+  "A3.min_slack_det": {
+   "n": 10,
+   "mean": 41.889,
+   "half": 0.0,
+   "min": 41.889,
+   "max": 41.889
+  },
+  "A4.attr_rate": {
+   "n": 10,
+   "mean": 1.0,
+   "half": 0.0,
+   "min": 1.0,
+   "max": 1.0
+  },
+  "A4.convicted": {
+   "n": 10,
+   "mean": 27,
+   "half": 0.0,
+   "min": 27,
+   "max": 27
+  },
+  "A4.det_max": {
+   "n": 10,
+   "mean": 30.1,
+   "half": 0.2262,
+   "min": 30,
+   "max": 31
+  },
+  "A4.min_slack_det": {
+   "n": 10,
+   "mean": 35.789,
+   "half": 0.2262,
+   "min": 34.889,
+   "max": 35.889
+  },
+  "A6.attr_rate": {
+   "n": 10,
+   "mean": 0.0,
+   "half": 0.0,
+   "min": 0.0,
+   "max": 0.0
+  },
+  "A6.convicted": {
+   "n": 10,
+   "mean": 0,
+   "half": 0.0,
+   "min": 0,
+   "max": 0
+  },
+  "A6.det_max": {
+   "n": 10,
+   "mean": 35,
+   "half": 0.0,
+   "min": 35,
+   "max": 35
+  },
+  "A6.min_slack_det": {
+   "n": 10,
+   "mean": 30.889,
+   "half": 0.0,
+   "min": 30.889,
+   "max": 30.889
+  },
+  "A7.attr_rate": {
+   "n": 10,
+   "mean": 1.0,
+   "half": 0.0,
+   "min": 1.0,
+   "max": 1.0
+  },
+  "A7.convicted": {
+   "n": 10,
+   "mean": 52,
+   "half": 0.0,
+   "min": 52,
+   "max": 52
+  },
+  "A7.det_max": {
+   "n": 10,
+   "mean": 27.7,
+   "half": 0.3455,
+   "min": 27,
+   "max": 28
+  },
+  "A7.min_slack_det": {
+   "n": 10,
+   "mean": 41.889,
+   "half": 0.0,
+   "min": 41.889,
+   "max": 41.889
+  },
+  "A8-v1.attr_rate": {
+   "n": 10,
+   "mean": 0.0,
+   "half": 0.0,
+   "min": 0.0,
+   "max": 0.0
+  },
+  "A8-v1.convicted": {
+   "n": 10,
+   "mean": 0,
+   "half": 0.0,
+   "min": 0,
+   "max": 0
+  },
+  "A8-v1.det_max": {
+   "n": 10,
+   "mean": 24,
+   "half": 0.0,
+   "min": 24,
+   "max": 24
+  },
+  "A8-v1.min_slack_det": {
+   "n": 10,
+   "mean": 41.889,
+   "half": 0.0,
+   "min": 41.889,
+   "max": 41.889
+  },
+  "A8.attr_rate": {
+   "n": 10,
+   "mean": 1.0,
+   "half": 0.0,
+   "min": 1.0,
+   "max": 1.0
+  },
+  "A8.convicted": {
+   "n": 10,
+   "mean": 40,
+   "half": 0.0,
+   "min": 40,
+   "max": 40
+  },
+  "A8.det_max": {
+   "n": 10,
+   "mean": 24,
+   "half": 0.0,
+   "min": 24,
+   "max": 24
+  },
+  "A8.min_slack_det": {
+   "n": 10,
+   "mean": 41.889,
+   "half": 0.0,
+   "min": 41.889,
+   "max": 41.889
+  },
+  "A9.attr_rate": {
+   "n": 10,
+   "mean": 1.0,
+   "half": 0.0,
+   "min": 1.0,
+   "max": 1.0
+  },
+  "A9.convicted": {
+   "n": 10,
+   "mean": 52,
+   "half": 0.0,
+   "min": 52,
+   "max": 52
+  },
+  "A9.det_max": {
+   "n": 10,
+   "mean": 331.9,
+   "half": 0.2262,
+   "min": 331,
+   "max": 332
+  },
+  "A9.min_slack_det": {
+   "n": 10,
+   "mean": 3.989,
+   "half": 0.2262,
+   "min": 3.889,
+   "max": 4.889
+  },
+  "honest-partition.attr_rate": {
+   "n": 10,
+   "mean": 0.0,
+   "half": 0.0,
+   "min": 0.0,
+   "max": 0.0
+  },
+  "honest-partition.convicted": {
+   "n": 10,
+   "mean": 0,
+   "half": 0.0,
+   "min": 0,
+   "max": 0
+  },
+  "honest-partition.det_max": {
+   "n": 10,
+   "mean": 39,
+   "half": 0.0,
+   "min": 39,
+   "max": 39
+  },
+  "honest-partition.min_slack_det": {
+   "n": 10,
+   "mean": 26.889,
+   "half": 0.0,
+   "min": 26.889,
+   "max": 26.889
+  },
+  "honest.attr_rate": {
+   "n": 10,
+   "mean": 0.0,
+   "half": 0.0,
+   "min": 0.0,
+   "max": 0.0
+  },
+  "honest.convicted": {
+   "n": 10,
+   "mean": 0,
+   "half": 0.0,
+   "min": 0,
+   "max": 0
+  },
+  "honest.det_max": {
+   "n": 10,
+   "mean": 30,
+   "half": 0.0,
+   "min": 30,
+   "max": 30
+  },
+  "honest.min_slack_det": {
+   "n": 10,
+   "mean": 35.889,
+   "half": 0.0,
+   "min": 35.889,
+   "max": 35.889
+  },
+  "honest_all.convicted": {
+   "n": 10,
+   "mean": 0,
+   "half": 0.0,
+   "min": 0,
+   "max": 0
+  },
+  "honest_all.late": {
+   "n": 10,
+   "mean": 840,
+   "half": 0.0,
+   "min": 840,
+   "max": 840
+  }
+ },
+ "seeds_count": 10,
+ "seed_trials": 7800,
+ "honest_all_v3": {
+  "trials": 1388,
+  "convicted": 0,
+  "rule_of_three_pct": 0.22
+ },
+ "bounds_all_v3": {
+  "detected_within": "3117500/3117500",
+  "attributed_within": "3109689/3109689"
+ }
+}
