@@ -215,10 +215,10 @@ A9 holds each receipt for just under `ν`, stretches its deadline by `σ`, and t
 | [`run_matrix.py`](prototype/run_matrix.py) | Runs the attack matrix in parallel. Each worker has its own Anvil, restarted every few trials. It is resumable: trials already in the output are skipped. `--variants "k=v,k=v;…"` overrides any `Params` field. |
 | [`analyze.py`](prototype/analyze.py) | Outcome shares, delays against the bounds, convictions, dispute counts and gas, per strategy and per witness regime. |
 | [`tables.py`](prototype/tables.py) | The attack × system matrix, generated as LaTeX from the logs (written to `paper/tables/`). |
-| [`figs.py`](prototype/figs.py) | Cost-frontier and outage-sweep figures, as PDF and PNG (written to `paper/figs/`). |
+| [`figs.py`](prototype/figs.py) | Cost-frontier, outage-sweep and equal-deadline cost figures (`cost.pdf`: gas per hour against `τ_FULL` and against the share of FULL events), as PDF and PNG (written to `paper/figs/`). |
 | [`pareto.py`](prototype/pareto.py) | Gas per hour as a function of `τ_FULL`. Compares PROVE-CPS (two-class stabbing), one-class stabbing, fixed-interval Merkle batching, and one transaction per event. |
 | [`policy_sweep.py`](prototype/policy_sweep.py) | Sensitivity to the policy and to an envelope-aware attacker. For each envelope margin and step threshold it reports the share of FULL events, the enrichment inside attack windows, the recall over the 52 attack windows, and the gas saving. |
-| [`cost_sweep.py`](prototype/cost_sweep.py) | Equal-guarantee cost on both test splits: PROVE-CPS against two-tier Merkle batching (B7) and fixed-interval Merkle batching (B3), and how the saving changes with the share of FULL events (random marking, and narrower policy envelopes). |
+| [`cost_sweep.py`](prototype/cost_sweep.py) | Equal-guarantee cost on both test splits: PROVE-CPS against two-tier Merkle batching (B7) and fixed-interval Merkle batching (B3), how the saving changes with the share of FULL events (random marking, and narrower policy envelopes), and a `τ_FULL` sweep from 5 to 300 s under the committed policy. |
 | [`run_besu_rt.py`](prototype/run_besu_rt.py) | End-to-end trials in real time on the Besu testbed. Each lane deploys a fresh registry and replays one attack window at 1× speed. The gateway reaches the chain through a relay container, so `tc netem` can cut its uplink for real. Validator faults are injected from a sidecar that shares a validator's network namespace. |
 | [`measure_gas.py`](prototype/measure_gas.py) | Steady-state gas of each design's honest-path call, measured with real HAI payloads. |
 | [`bench_device.py`](prototype/bench_device.py) | Device-side CPU and memory cost per event, using the exact `Device` code. |
@@ -321,7 +321,7 @@ These are the v3 results, with 0 harness errors in every campaign. The numbers c
 | `δ` on the faulty ledger | Honest `Late` anchors in 14 trials: 316 at δ = 1 s, 124 at δ = 3 s, 0 at δ = 6 s. No conviction at any δ. |
 | Honest gateways | **0 convictions in 1,388 honest v3 trials** (rule of three: below 0.22% at 95%), including 680 with a 120 s partition. 107,919 challenges from a flooding witness also produced no conviction. |
 | Outage sweep | The predicted conviction boundary matches **294 of 294** verdicts |
-| Cost | `anchor` = 48,086 gas, within 0.7% of a plain Merkle-root anchor. **71% less gas** than fixed-interval Merkle batching at a 30 s FULL deadline, and 85% less at 10 s. |
+| Cost | `anchor` = 48,086 gas, within 0.7% of a plain Merkle-root anchor. **72% less gas** than fixed-interval Merkle batching at a 30 s FULL deadline, and 86% less at 10 s (both test splits, 79 h; 71% and 85% on test2 alone). |
 
 Measured ledger inclusion delay `Δ_L` (p50 / p99 / max):
 

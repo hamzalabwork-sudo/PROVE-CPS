@@ -11,6 +11,7 @@
                 (the pessimistic case for batching)
      envelope   the committed policy with a narrower envelope margin: FULL events cluster in excursions, as in the
                 plant (policy_sweep.py)
+3. The FULL deadline tau_FULL under the committed policy (tau_sweep).
 Gas per call from measure_gas.py: anchor 48,086 (PROVE-CPS), root-only Merkle contract 47,762 (B3, B7).
 
 Usage: python cost_sweep.py [out.json]
@@ -31,19 +32,20 @@ TAU_FULL, TAU_DIGEST, DELTA = 30, 300, 3.0
 FRACTIONS = [0.001, 0.002, 0.005, 0.01, 0.02, 0.05, 0.1, 0.2]
 MARGINS = [200, 100, 50, 25, 0, -25, -50]   # permille beyond the envelope (default policy: 50)
 STEP = 900
+TAUS = [5, 10, 20, 30, 60, 120, 300]   # deadline sweep under the committed policy
 
 
-def costs(reps, label_of):
+def costs(reps, label_of, tau_full=TAU_FULL):
     """Batches of PROVE-CPS (one two-class stabbing schedule), of B7 (two independent tiers) and of B3."""
     two = b7 = b3 = n = full = 0
     hours = 0.0
     for rep in reps:
         rc = [(t + 0.005, "full" if label_of(rep, i, f) else "digest") for i, (t, _, f, _) in enumerate(rep.events)]
-        two += len(stabbing(rc, {"full": TAU_FULL, "digest": TAU_DIGEST}, DELTA))
+        two += len(stabbing(rc, {"full": tau_full, "digest": TAU_DIGEST}, DELTA))
         fast = [(t, k) for t, k in rc if k == "full"]
         slow = [(t, k) for t, k in rc if k == "digest"]
-        b7 += len(stabbing(fast, {"full": TAU_FULL}, DELTA)) + len(stabbing(slow, {"digest": TAU_DIGEST}, DELTA))
-        b3 += fixed_interval(0, rep.duration, TAU_FULL, DELTA)
+        b7 += len(stabbing(fast, {"full": tau_full}, DELTA)) + len(stabbing(slow, {"digest": TAU_DIGEST}, DELTA))
+        b3 += fixed_interval(0, rep.duration, tau_full, DELTA)
         hours += rep.duration / 3600
         n += len(rc)
         full += sum(k == "full" for _, k in rc)
@@ -74,6 +76,12 @@ def main():
         res["envelope"].append(r)
         print(f"margin {m:4d}  FULL {r['full_pct']:5.2f}%  saving vs B3 {r['saving_vs_B3_pct']:5.1f}%  "
               f"vs B7 {r['vs_B7_pct']:+5.1f}%")
+    res["tau_sweep"] = []
+    for tau in TAUS:
+        r = costs(reps, lambda rep, i, f: is_full(f, 50, STEP), tau)
+        r["tau_full"] = tau
+        res["tau_sweep"].append(r)
+        print(f"tau_full {tau:4d}  saving vs B3 {r['saving_vs_B3_pct']:5.1f}%  vs B7 {r['vs_B7_pct']:+5.1f}%")
     if out:
         Path(out).write_text(json.dumps(res, indent=1))
 

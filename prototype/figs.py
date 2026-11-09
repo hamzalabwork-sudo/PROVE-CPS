@@ -109,7 +109,63 @@ def frame():
     print("wrote", OUT / "frame.pdf", agree, n)
 
 
+def cost():
+    """Equal-deadline gas per hour on both HAI test traces (79 h), cost_sweep.py. (a) Deadline sweep under the
+    committed policy. (b) FULL-share sweep at tau_FULL = 30 s: the committed policy with narrower or wider envelope
+    margins (FULL events cluster in excursions) and random marking (FULL events spread evenly, the worst case for
+    batching). One legend for both panels; the series keep slot, marker and linestyle across panels."""
+    d = json.loads((ROOT / "experiments/results/cost_sweep_v4.json").read_text())
+    M = lambda rows, k: [r["gas_per_h"][k] / 1e6 for r in rows]  # noqa: E731
+    fig, (a, b) = plt.subplots(1, 2, figsize=(3.45, 1.62), gridspec_kw={"wspace": 0.42})
+    for ax in (a, b):
+        ax.grid(True, which="major", color=GRID, linewidth=0.5)
+        ax.set_axisbelow(True)
+    kw = dict(markersize=3.2, markeredgecolor="white", markeredgewidth=0.5)
+    st = {"B3": dict(color=SERIES[1], linestyle="--", marker="s", linewidth=1.4),
+          "B7": dict(color=SERIES[2], linestyle=":", marker="^", linewidth=1.4),
+          "pol": dict(color=SERIES[0], linestyle="-", marker="o", linewidth=2),
+          "rnd": dict(color=SERIES[3], linestyle="-.", marker="D", linewidth=1.4)}
+    ts = d["tau_sweep"]
+    tau = [r["tau_full"] for r in ts]
+    a.plot(tau, M(ts, "B3"), label="B3 fixed", **st["B3"], **kw)
+    a.plot(tau, M(ts, "B7_two_tier"), label="B7 two-tier", **st["B7"], **kw)
+    a.plot(tau, M(ts, "provecps"), label="ours, policy", **st["pol"], **kw)
+    a.plot([], [], label="ours, random FULL", **st["rnd"], **kw)
+    a.set_xscale("log")
+    a.set_yscale("log")
+    a.set_xticks([5, 10, 30, 100, 300])
+    a.set_xticklabels(["5", "10", "30", "100", "300"])
+    a.set_ylim(0.4, 150)
+    a.set_xlabel(r"(a) deadline $\tau_{\mathrm{full}}$ (s)")
+    a.set_ylabel("Gas per hour (M)")
+    rnd = d["random"]
+    env = sorted(d["envelope"], key=lambda r: r["full_pct"])
+    b3 = rnd[0]["gas_per_h"]["B3"] / 1e6
+    b.axhline(b3, color=st["B3"]["color"], linestyle="--", linewidth=1.4)
+    b.plot([r["full_pct"] for r in rnd], M(rnd, "B7_two_tier"), **st["B7"], **kw)
+    b.plot([r["full_pct"] for r in rnd], M(rnd, "provecps"), **st["rnd"], **kw)
+    b.plot([r["full_pct"] for r in env], M(env, "provecps"), **st["pol"], **kw)
+    pol = d["policy"]
+    b.annotate("default\nmargin", xy=(pol["full_pct"], pol["gas_per_h"]["provecps"] / 1e6), xytext=(1.5, 1.0),
+               fontsize=6.3, color=INK, ha="left", va="center", linespacing=0.9,
+               arrowprops=dict(arrowstyle="-", color=INK2, linewidth=0.6, shrinkA=1, shrinkB=2))
+    b.set_xscale("log")
+    b.set_xticks([0.1, 1, 10])
+    b.set_xticklabels(["0.1", "1", "10"])
+    b.set_ylim(0, 7.4)
+    b.set_xlabel(r"(b) FULL events (%), $\tau_{\mathrm{full}}$ = 30 s")
+    h, lab = a.get_legend_handles_labels()
+    leg = fig.legend(h, lab, loc="lower center", bbox_to_anchor=(0.5, 0.9), ncol=4, frameon=False, fontsize=6,
+                     handlelength=1.6, columnspacing=0.8, handletextpad=0.35, borderaxespad=0)
+    for t in leg.get_texts():
+        t.set_color(INK)
+    fig.savefig(OUT / "cost.pdf")
+    fig.savefig(OUT / "cost.png", dpi=220)
+    print("wrote", OUT / "cost.pdf")
+
+
 if __name__ == "__main__":
     OUT.mkdir(parents=True, exist_ok=True)
     pareto()
     frame()
+    cost()
