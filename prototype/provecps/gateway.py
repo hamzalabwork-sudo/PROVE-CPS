@@ -213,11 +213,62 @@ class Gateway:
         self.waiting = []                    # challenges to answer once coverage lands (see _respond)
         self.release = {}                    # (dev, counter) -> time a withheld receipt is released (A9)
         self.stats = {"events": 0, "receipts": 0, "rejected": 0, "batches": 0, "leaves": 0, "responses": 0}
+        self.dead = False                    # crashed: the process and its local state are gone
         port.subscribe(self._on_ledger)
+
+    # ------------------------------------------------------------------ crash recovery
+
+    def crash(self):
+        """The process stops and its local state is lost. Pending timers and callbacks become no-ops."""
+        self.dead = True
+
+    def recover(self):
+        """Restart after a crash that lost all local state. Everything an honest gateway must keep was published
+        to the replicated evidence store before it acted (receipts in the custody log, every event header, FULL
+        payloads, batch manifests), so custody state is rebuilt from there, and open challenges from the ledger.
+        Device signatures on heads that were never anchored are lost: the gateway anchors the next device-signed
+        head it receives, which covers every earlier event (hash chain)."""
+        store, gw = self.store, self.address
+        for (g, dev, c), r in store.custody_log.items():
+            if g != gw:
+                continue
+            st = self.dev[dev]
+            st.heads[c], st.deadline[c] = r.head, r.deadline
+            if c > st.last_counter:
+                st.last_counter, st.last_head, st.last_receipt = c, r.head, r
+        for (dev, c), eh in store.gateway_headers.items():
+            if dev in self.dev and c <= self.dev[dev].last_counter:
+                self.dev[dev].hashes[c] = eh
+        for dev, entries in store.by_device.items():
+            for c, root, head, sig, proof in entries:
+                if store.manifests[root][0] == gw and self.port.anchored_at(gw, root) > 0:
+                    self.coverage[dev].append((c, head, sig, root, proof))
+                    st = self.dev[dev]
+                    st.anchored_req = max(st.anchored_req, c)
+                    st.heads.setdefault(c, head)
+                    st.sigs.setdefault(c, sig)
+        for dev, st in self.dev.items():
+            for c in range(st.anchored_req + 1, st.last_counter + 1):
+                if c in st.deadline:
+                    heapq.heappush(self.heap, (st.deadline[c], dev, c))
+        led = self.port.ledger
+        opened = {}
+        for _, sender, fn, args, status, _, evs in led.log:
+            for name, a in evs:
+                if name == "ChallengeOpened" and a["gateway"] == gw:
+                    opened[a["id"]] = (a["kind"], a["deviceId"], a["counter"], fn, args)
+        self.stats["recovered_open"] = 0
+        for cid, (kind, dev, counter, fn, args) in sorted(opened.items()):
+            if led.status.get(cid) == 1:
+                self.stats["recovered_open"] += 1
+                self._respond(cid, kind, dev, counter, fn, args)
+        self._schedule()
 
     # ------------------------------------------------------------------ device messages
 
     def on_event(self, msg):
+        if self.dead:
+            return None
         now = self.sim.now
         if self.strategy.drop(msg, now):
             return None
@@ -283,6 +334,8 @@ class Gateway:
             self.sim.at(t, self._fire, t)
 
     def _fire(self, token=None, force=False):
+        if self.dead:
+            return
         if not force and token != self.fire_at:
             return                           # superseded by an earlier firing
         self.fire_at = None
@@ -297,6 +350,8 @@ class Gateway:
                 continue
             cap = self.strategy.cap(dev, st)
             c = st.last_counter if cap is None else min(cap, st.last_counter)
+            while c > st.anchored_req and c not in st.sigs:
+                c -= 1                       # after a crash with state loss: no device signature on this head
             if c > st.anchored_req:
                 entries.append((dev, c, st.heads[c], st.sigs[c]))
                 st.anchored_req = c
@@ -324,9 +379,13 @@ class Gateway:
         def done(ok, evs, ts):
             if not ok:
                 return
+            # The manifest goes to the replicated store before the anchor is sent (persist before acting), so it
+            # survives a crash of the gateway while the transaction is in flight.
+            self.store.publish_manifest(self.address, root, ts, proved)
+            if self.dead:
+                return
             for d, c, h, s, p in proved:
                 self.coverage[d].append((c, h, s, root, p))
-            self.store.publish_manifest(self.address, root, ts, proved)
             self._answer_waiting()
 
         self.port.submit("anchor", (root,), done)
@@ -334,6 +393,8 @@ class Gateway:
     # ------------------------------------------------------------------ disputes
 
     def _on_ledger(self, sender, fn, args, ok, evs, ts):
+        if self.dead:
+            return
         for name, a in evs:
             if name == "ChallengeOpened" and a["gateway"] == self.address:
                 self._respond(a["id"], a["kind"], a["deviceId"], a["counter"], fn, args)
@@ -343,7 +404,8 @@ class Gateway:
             return
         st = self.dev[dev]
         if kind == AVAILABILITY:
-            payload = st.custody.get(counter)
+            # from custody, or (after a crash that lost local state) from the replicated store it published to
+            payload = st.custody.get(counter) or self.store.payloads.get(bytes(args[3][4]))
             if payload is not None:
                 self.port.submit("respondPayload", (cid, payload))
                 self.stats["responses"] += 1
@@ -386,10 +448,11 @@ class Gateway:
         def done(ok, evs, ts):
             if not ok:
                 return
-            self.coverage[dev].append((counter, head, sig, root, []))
             self.store.publish_manifest(self.address, root, ts, [(dev, counter, head, sig, [])])
             if payload:
                 self.store.put_payload(keccak(payload), payload)   # now in calldata on the ledger
+            if not self.dead:
+                self.coverage[dev].append((counter, head, sig, root, []))
 
         self.port.submit("anchorAndRespond", (cid, (root, counter, head, sig, []), [], payload), done)
 

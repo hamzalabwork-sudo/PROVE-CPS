@@ -27,10 +27,14 @@ OPEN, DISMISSED, LATE, CONVICTED = 1, 2, 3, 4
 
 class Witness:
     def __init__(self, sim, port, domain, device_keys, gateway_of, store, grace=1, notice_after=15, economy=False,
-                 notice_full=True, bond=0):
+                 notice_full=True, bond=0, notice=True, policy=True):
         self.sim, self.port, self.domain = sim, port, domain
         self.economy = economy
         self.notice_full = notice_full  # v2; False reproduces v1 (ablation: plain NOTICE only, no second path)
+        # Component ablations: without the on-chain NOTICE (and NOTICE-FULL) the witness can dispute only what the
+        # gateway receipted; without a committed policy nobody can claim a payload was required (no AVAILABILITY,
+        # no NOTICE-FULL).
+        self.notice, self.policy = notice, policy
         self.bond = bond                # deposit the registry requires with every challenge
         self.device_keys, self.gateway_of, self.store = device_keys, gateway_of, store
         self.grace, self.notice_after = grace, notice_after
@@ -66,14 +70,15 @@ class Witness:
         for e in cp.evidence:
             if self._gateway_signed(gw, e.receipt):
                 self._watch_custody(gw, e.receipt)
-                self.sim.at(e.receipt.deadline + self.grace, self._check_availability, gw, e)
+                if self.policy:
+                    self.sim.at(e.receipt.deadline + self.grace, self._check_availability, gw, e)
         if self.notice_full:
             for ph, payload in cp.payloads:
                 self.store.witness_payloads[ph] = payload
             for hdr in cp.headers:  # a header is authenticated by the signed head its event hash chains into
                 if hdr.device_id == dev:
                     self.store.witness_headers[(dev, hdr.counter)] = hdr.hash()
-            for e in cp.full_pending:
+            for e in cp.full_pending if self.notice and self.policy else ():
                 key = (dev, e.header.counter)
                 if key in self.noticed_full or (self.economy and gw in self.convicted):
                     continue
@@ -81,8 +86,8 @@ class Witness:
                 self.noticed[dev] = max(self.noticed.get(dev, 0), h.counter)  # it also obliges coverage of h
                 self._open("noticeFull", (h.abi(), h.sig, e.prev_head, e.header.abi(), list(e.later)), dev, h.counter)
         oldest = cp.oldest_unreceipted_ts
-        if (oldest is not None and self.sim.now - oldest >= self.notice_after and h.counter > self.noticed.get(dev, 0)
-                and not self._quiet(dev, gw)):
+        if (self.notice and oldest is not None and self.sim.now - oldest >= self.notice_after
+                and h.counter > self.noticed.get(dev, 0) and not self._quiet(dev, gw)):
             self.noticed[dev] = h.counter
             self._open("notice", (h.abi(), h.sig), dev, h.counter)
 

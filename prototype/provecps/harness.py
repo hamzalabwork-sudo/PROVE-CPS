@@ -94,6 +94,17 @@ class Params:
     witnesses: int = 1          # witnesses per witnessed device (diverse, e.g. controller + network monitor)
     silent_witnesses: int = 0   # how many of them are corrupt and collude with the gateway (never challenge)
     seed: int = 0
+    # component ablations (each removes one mechanism; the defaults are the full protocol)
+    receipts: bool = True       # the gateway returns custody receipts to devices
+    notice: bool = True         # witnesses may post NOTICE / NOTICE-FULL on the ledger
+    policy_checks: bool = True  # a committed policy lets witnesses claim payloads (AVAILABILITY, NOTICE-FULL)
+    device_check: bool = True   # devices reject receipts whose deadline exceeds tau_k + sigma
+    a9_stretch: int = -1        # A9 deadline stretch (s); -1 = sigma - 1, the most a checking device accepts
+    # gateway crash at A0 + crash_at lasting crash_dur seconds; with crash_loss the restarted gateway has lost
+    # all local state and recovers from the replicated store and the ledger (otherwise a crash is an outage)
+    crash_at: float = -1.0
+    crash_dur: float = 0.0
+    crash_loss: bool = True
 
 
 _SIGNERS = {}
@@ -118,7 +129,8 @@ def strategies(P, targets, a0, a1, unwitnessed=frozenset()):
         "A7": (Stonewall(targets, a0), True, targets),          # stonewall timed to a real partition
         "A8": (RefuseCustody(targets, a0), False, targets),     # refuse custody, answer plain notices
         "A8-v1": (RefuseCustody(targets, a0), False, targets),  # ablation: the same attack against v1 (no NOTICE-FULL)
-        "A9": (SlowWalk(targets, a0, P.notice_after - 1, P.sigma - 1), False, targets),  # worst case for the achievability bound
+        "A9": (SlowWalk(targets, a0, P.notice_after - 1, P.sigma - 1 if P.a9_stretch < 0 else P.a9_stretch), False,
+               targets),  # worst case for the achievability bound
         "honest-partition": (Honest(), True, targets),          # same partition, honest gateway
         "honest-grief": (Honest(), False, targets),             # honest gateway vs. a challenge-flooding witness
         # witness necessity: an attacker who knows the witness topology suppresses only devices without a witness.
@@ -156,10 +168,22 @@ def run_trial(rep, attack_idx, strat_name, P: Params, chain: Anvil, delays=None)
     end = end_gen + P.W + P.tau_digest + 120
 
     strategy, partition, targets = strategies(P, rep.boiler, A0, A1, frozenset(rep.boiler - rep.witnessed))[strat_name]
-    outs = Outages([(A0, A0 + P.O)] if partition else [])
+    crash = (A0 + P.crash_at, A0 + P.crash_at + P.crash_dur) if P.crash_at >= 0 and P.crash_dur > 0 else None
+    outs = Outages(([(A0, A0 + P.O)] if partition else []) + ([crash] if crash else []))
     store = EvidenceStore()
-    gw = Gateway(sim, gws, LedgerPort(led, gws.address, outs), dom, policy, keys, store,
-                 P.tau_full, P.tau_digest, P.safety, P.reserve, strategy)
+    gw_port = LedgerPort(led, gws.address, outs)
+
+    def new_gateway():
+        return Gateway(sim, gws, gw_port, dom, policy, keys, store, P.tau_full, P.tau_digest, P.safety, P.reserve,
+                       strategy)
+    gateways = [new_gateway()]   # the current process is gateways[-1]; a crash with state loss starts a new one
+
+    if crash and P.crash_loss:
+        def restart():
+            gateways.append(new_gateway())
+            gateways[-1].recover()
+        sim.at(crash[0], lambda: gateways[-1].crash())
+        sim.at(crash[1], restart)
     # Witness 0 is the reference witness. With silent_witnesses = s, the first s witnesses are corrupt: they receive
     # every checkpoint but never challenge, and they keep their payload copies to themselves (private store).
     wits = []
@@ -169,22 +193,25 @@ def run_trial(rep, attack_idx, strat_name, P: Params, chain: Anvil, delays=None)
         port = LedgerPort(led, acct.address)
         wits.append(Witness(sim, SilentPort(port) if corrupt else port, dom, keys,
                             {i: gws.address for i in devices_ids}, EvidenceStore() if corrupt else store, P.grace,
-                            P.notice_after, P.economy, P.notice_full and not strat_name.endswith("-v1"), P.bond))
+                            P.notice_after, P.economy, P.notice_full and not strat_name.endswith("-v1"), P.bond,
+                            P.notice, P.policy_checks))
         chain.rpc("anvil_setBalance", [acct.address, hex(10**30)])
     witness = next((w for k, w in enumerate(wits) if k >= P.silent_witnesses), wits[0])  # reported in "witness"
     chain.rpc("anvil_setBalance", [signer("griefer").address, hex(10**30)])
     griefer = (GriefWitness(sim, LedgerPort(led, signer("griefer").address), sorted(rep.witnessed), P.bond,
                             P.grief_period) if strat_name == "honest-grief" else None)
     auditor = Auditor(sim, store, devices_ids, silence_after=P.heartbeat + P.tau_digest + 2 * P.safety + 30)
-    devs = {i: Device(i, signer(f"dev{i}"), gws.address, dom, policy, tau_max=P.tau_digest, tau_full=P.tau_full, clock_slack=P.sigma,
-                      notice_after=int(P.notice_after)) for i in devices_ids}
+    slack = P.sigma if P.device_check else 10**9
+    devs = {i: Device(i, signer(f"dev{i}"), gws.address, dom, policy, tau_max=P.tau_digest, tau_full=P.tau_full,
+                      clock_slack=slack, notice_after=int(P.notice_after)) for i in devices_ids}
     to_gw, to_dev, to_wit = Link(sim, P.d_gw, outs), Link(sim, P.d_gw, outs), Link(sim, P.d_wit)
     gen = {}        # (dev, counter) -> (ts, full)
     last_f0 = {}
 
     def gw_recv(m):
+        gw = gateways[-1]
         r = gw.on_event(m)
-        if r is not None:
+        if r is not None and P.receipts:
             rel = gw.release_time(r)
             if rel > sim.now:
                 sim.at(rel, to_dev.send, dev_recv, r)
@@ -236,8 +263,13 @@ def run_trial(rep, attack_idx, strat_name, P: Params, chain: Anvil, delays=None)
     wall = time.perf_counter()
     sim.run(end)
     wall = time.perf_counter() - wall
-    res = score(rep, strat_name, P, led, store, auditor, gen, targets, A0, A1, attack_idx, devs, gw, witness,
+    gw_stats = {}
+    for g in gateways:
+        for k, v in g.stats.items():
+            gw_stats[k] = gw_stats.get(k, 0) + v
+    res = score(rep, strat_name, P, led, store, auditor, gen, targets, A0, A1, attack_idx, devs, gw_stats, witness,
                 delays, wall, partition)
+    res["gateway"] = gw_stats
     if griefer is not None:
         mine = [(fn, st, u) for _, snd, fn, _, st, u, _ in led.log if snd == gws.address and fn != "anchor"]
         res["grief"] = {**griefer.stats, "gateway_credit_wei": led.view("credit", gws.address),
@@ -346,7 +378,7 @@ def score(rep, strat_name, P, led, store, auditor, gen, targets, A0, A1, attack_
         "equivocation_at": min((e[0] for e in equivocation), default=A0 - 1) - A0 if equivocation else None,
         "challenges": {KIND[k]: sum(1 for v in opened.values() if v[1] == k) for k in KIND},
         "resolutions": {STATUS[s]: sum(1 for v in resolved.values() if v[1] == s) for s in STATUS},
-        "alarms": len(auditor.history), "gas": gas, "batches": gw.stats["batches"], "leaves": gw.stats["leaves"],
+        "alarms": len(auditor.history), "gas": gas, "batches": gw["batches"], "leaves": gw["leaves"],
         "device_max_buffer": max(d.stats["max_buffer"] for d in devs.values()),
         "witness": witness.stats, "wall_s": round(wall, 2),
     }
