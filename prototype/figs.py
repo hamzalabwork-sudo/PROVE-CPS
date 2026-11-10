@@ -164,8 +164,52 @@ def cost():
     print("wrote", OUT / "cost.pdf")
 
 
+def realtime():
+    """Real-time Besu runs (besu_rt_v4): every witnessed event's measured detection delay as a fraction of its
+    proven bound (Theorem 3, evaluated with the run's own measured Delta_L), one row per attack run, FULL and
+    DIGEST events as two series (slots 1-2, distinct markers). Points left of 1 are within the bound."""
+    import gzip
+    import random
+    runs = [json.loads(l) for l in gzip.open(ROOT / "experiments/results/besu_rt_v4.jsonl.gz", "rt")]
+    order = [("A1", {}), ("A2", {}), ("A3", {"isolate4": "1"}), ("A4", {}), ("A7", {"cut": "120"}),
+             ("A8", {}), ("A8", {"isolate4": "1"}), ("A9", {}), ("A9", {"isolate4": "1"})]
+    label = lambda s, sc: s + (" (validator isolated)" if "isolate4" in sc else  # noqa: E731
+                               " (120 s uplink cut)" if "cut" in sc else "")
+    rng = random.Random(1)
+    fig, ax = plt.subplots(figsize=(3.45, 1.95))
+    ax.grid(True, axis="x", color=GRID, linewidth=0.5)
+    ax.set_axisbelow(True)
+    ys, labs, n = [], [], 0
+    for y, (s, sc) in enumerate(reversed(order)):
+        ev = [r for t in runs if t["strategy"] == s and t["scenario"] == sc
+              for r in t["rows"] if r["witnessed"] and r["d_det"] is not None]
+        for full, c, m in ((False, SERIES[1], "s"), (True, SERIES[0], "o")):
+            xs = [r["d_det"] / r["bound_d"] for r in ev if r["full"] == full]
+            ax.scatter(xs, [y + rng.uniform(-0.22, 0.22) for _ in xs], s=4 if not full else 6, color=c, marker=m,
+                       linewidths=0, alpha=0.75)
+        n += len(ev)
+        ys.append(y)
+        labs.append(label(s, sc))
+    ax.axvline(1.0, color=INK, linewidth=0.8, linestyle="--")
+    ax.text(0.985, len(order) - 0.45, "proven bound", color=INK, ha="right", va="center", fontsize=6.3)
+    ax.set_yticks(ys)
+    ax.set_yticklabels(labs, fontsize=6.5)
+    ax.set_xlim(0, 1.04)
+    ax.set_ylim(-0.6, len(order) - 0.1)
+    ax.set_xlabel("Measured detection delay / proven bound")
+    h = [plt.Line2D([], [], color=SERIES[0], marker="o", linestyle="", markersize=3.2, label="FULL"),
+         plt.Line2D([], [], color=SERIES[1], marker="s", linestyle="", markersize=2.8, label="DIGEST")]
+    leg = ax.legend(handles=h, loc="center", bbox_to_anchor=(0.62, 0.5), frameon=False, fontsize=6.3, handletextpad=0.2)
+    for t in leg.get_texts():
+        t.set_color(INK)
+    fig.savefig(OUT / "realtime.pdf")
+    fig.savefig(OUT / "realtime.png", dpi=220)
+    print("wrote", OUT / "realtime.pdf", n, "events")
+
+
 if __name__ == "__main__":
     OUT.mkdir(parents=True, exist_ok=True)
     pareto()
     frame()
     cost()
+    realtime()
